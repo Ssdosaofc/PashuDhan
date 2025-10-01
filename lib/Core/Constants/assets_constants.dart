@@ -9,4 +9,10 @@ class AssetsConstants{
   static const String left_arrow = 'assets/images/left_arrow_vector.png';
   static const String texture = 'assets/images/texture.png';
 
+  static const List msgs = [
+    {'msg':'','link':''},
+    {'msg':'','link':''},
+    {'msg':'','link':''},
+    {'msg':'Let\'s begin our journey!\nचलिए शुरू करते हैं!','link':'assets/images/onboard/4.jpg'},
+  ];
 }

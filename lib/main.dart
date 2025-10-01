@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pashu_dhan/Screens/Auth/LoginScreen.dart';
+import 'package:pashu_dhan/Screens/Auth/onboarding_screen.dart';
 
 import 'Screens/Landing/HomeScreen.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Loginscreen()
+      home: OnboardingScreen()
     );
   }
 }

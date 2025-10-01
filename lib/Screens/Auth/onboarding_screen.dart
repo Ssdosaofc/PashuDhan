@@ -2,8 +2,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:pashu_dhan/Core/Constants/assets_constants.dart';
 import 'package:pashu_dhan/Core/Constants/color_constants.dart';
-import 'package:pashu_dhan/Core/Widgets/info_card.dart';
 import 'package:pashu_dhan/Screens/Auth/LoginScreen.dart';
+
+import '../../Common/Widgets/info_card.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

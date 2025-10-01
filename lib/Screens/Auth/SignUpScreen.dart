@@ -3,11 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pashu_dhan/Screens/Auth/LoginScreen.dart';
 
+import '../../Common/Widgets/info_card.dart';
+import '../../Common/Widgets/primary_button.dart';
+import '../../Common/Widgets/text_box.dart';
 import '../../Core/Constants/assets_constants.dart';
 import '../../Core/Constants/color_constants.dart';
-import '../../Core/Widgets/info_card.dart';
-import '../../Core/Widgets/primary_button.dart';
-import '../../Core/Widgets/text_box.dart';
 import '../Landing/Dashboard.dart';
 
 class Signupscreen extends StatefulWidget {

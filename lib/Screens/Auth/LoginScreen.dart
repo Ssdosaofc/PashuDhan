@@ -1,11 +1,12 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pashu_dhan/Core/Widgets/info_card.dart';
-import 'package:pashu_dhan/Core/Widgets/primary_button.dart';
-import 'package:pashu_dhan/Core/Widgets/text_box.dart';
 import 'package:pashu_dhan/Screens/Auth/SignUpScreen.dart';
+import 'package:pashu_dhan/Screens/Landing/HomeScreen.dart';
 
+import '../../Common/Widgets/info_card.dart';
+import '../../Common/Widgets/primary_button.dart';
+import '../../Common/Widgets/text_box.dart';
 import '../../Core/Constants/assets_constants.dart';
 import '../../Core/Constants/color_constants.dart';
 import '../Landing/Dashboard.dart';
@@ -120,11 +121,11 @@ class _LoginscreenState extends State<Loginscreen> {
                                 onPressed: (){
                                   switch(range){
                                     case 1:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        Dashboard()), (Route<dynamic> route) => false);
+                                        HomeScreen()), (Route<dynamic> route) => false);
                                     case 2:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        Dashboard()), (Route<dynamic> route) => false);
+                                        HomeScreen()), (Route<dynamic> route) => false);
                                     case 3:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        Dashboard()), (Route<dynamic> route) => false);
+                                        HomeScreen()), (Route<dynamic> route) => false);
                                   }
                                 },
                                 text: "Login"

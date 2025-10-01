@@ -22,5 +22,4 @@ class AssetsConstants{
     {'msg':'','link':''},
     {'msg':'Let\'s begin our journey!\nचलिए शुरू करते हैं!','link':'assets/images/onboard/4.jpg'},
   ];
-
 }

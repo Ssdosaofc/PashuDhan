@@ -7,7 +7,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pashu_dhan/lib/main.dart';
+import 'package:pashu_dhan/main.dart';
 
 
 void main() {

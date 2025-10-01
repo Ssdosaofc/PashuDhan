@@ -109,7 +109,7 @@ class _DashboardState extends State<Dashboard> {
                 padding:
                 const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEBDDC8),
+                  color: ColorConstants.ebddc8,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(

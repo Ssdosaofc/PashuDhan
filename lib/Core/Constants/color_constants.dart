@@ -62,4 +62,5 @@ class ColorConstants {
   static const Color cEBEBEB = Color(0xFFEBEBEB);
   static const Color cF3F3F3 = Color(0xFFF3F3F3);
   static const Color c102C66 = Color(0xFF102C66);
+  static const Color ebddc8 = Color(0xFFEBDDC8);
 }

@@ -9,7 +9,8 @@ import 'LiveStock.dart';
 import 'Profile/profile.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  final VoidCallback? goToLivestock;
+  const Dashboard({super.key, this.goToLivestock});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -92,7 +93,7 @@ class _DashboardState extends State<Dashboard> {
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(
-              top: Radius.circular(28),
+              top: Radius.circular(20),
             ),
             boxShadow: [
               BoxShadow(
@@ -128,12 +129,7 @@ class _DashboardState extends State<Dashboard> {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Livestock()),
-                        );
-                      },
+                      onTap: widget.goToLivestock,
                       child: _infoCard("Total Livestock", "452",
                           "+15 head this month", Icons.pets, Colors.teal),
                     ),

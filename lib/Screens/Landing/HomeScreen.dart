@@ -17,19 +17,29 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    Dashboard(),
-    Livestock(),
-    Settings(),
-    Help(),
-  ];
 
+  @override
   void initState() {
     super.initState();
+
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _screens = [
+      Dashboard(
+        goToLivestock: () {
+          setState(() {
+            _currentIndex = 1;
+          });
+        },
+      ),
+      Livestock(onBack: () {
+        setState(() => _currentIndex = 0);
+      }),
+      const Settings(),
+      const Help(),
+    ];
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: _screens[_currentIndex],

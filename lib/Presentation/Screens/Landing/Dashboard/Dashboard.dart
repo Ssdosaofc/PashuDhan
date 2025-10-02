@@ -21,6 +21,45 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
 
+  void _showConfirmationDialog(String animalName, BuildContext sheetContext) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Text("Confirm Addition ?",style: TextStyle(fontWeight: FontWeight.bold),),
+          content: Text("Are you sure you want to add a $animalName to your livestock?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancel",style: TextStyle(color: Colors.black)),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text("Confirm",style: TextStyle(color: Colors.white),),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                Navigator.of(sheetContext).pop();
+                CustomSnackbar.showSnackBar(
+                  text: "$animalName added successfully!",
+                  context: context,
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showAddAnimalSheet() {
     final TextEditingController searchController = TextEditingController();
 
@@ -73,7 +112,6 @@ class _DashboardState extends State<Dashboard> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Search Field
                   TextField(
                     controller: searchController,
                     onChanged: (query) {
@@ -92,7 +130,7 @@ class _DashboardState extends State<Dashboard> {
                         borderSide: BorderSide.none,
                       ),
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -124,11 +162,12 @@ class _DashboardState extends State<Dashboard> {
                             trailing: IconButton(
                               icon: const Icon(Icons.add_circle, color: Colors.teal, size: 28),
                               onPressed: () {
-                                Navigator.pop(context, animalName);
-                                CustomSnackbar.showSnackBar(
-                                  text: "$animalName added successfully!",
-                                  context: context,
-                                );
+                                // Navigator.pop(context, animalName);
+                                // CustomSnackbar.showSnackBar(
+                                //   text: "$animalName added successfully!",
+                                //   context: context,
+                                // );
+                                _showConfirmationDialog(animalName, context);
                               },
                             ),
                           ),

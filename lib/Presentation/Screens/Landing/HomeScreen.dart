@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'Dashboard.dart';
+import 'Dashboard/Dashboard.dart';
 import 'Help.dart';
 import 'LiveStock.dart';
 import 'Settings.dart';

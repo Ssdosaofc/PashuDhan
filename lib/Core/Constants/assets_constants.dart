@@ -11,9 +11,14 @@ class AssetsConstants{
 
 
 //   Animals
-  static const String cow = 'assets/images/cow.png';
-  static const String goat = 'assets/images/goat.jpg';
-  static const String sheeps = 'assets/images/sheep.jpg';
+  static const String cow = 'assets/images/animals/cow.png';
+  static const String goat = 'assets/images/animals/goat.jpg';
+  static const String sheeps = 'assets/images/animals/sheep.jpg';
+  static const String female_buffalo= 'assets/images/animals/female_buffalo.png';
+  static const String camel = 'assets/images/animals/camel.jpg';
+  static const String duck = 'assets/images/animals/duck.jpg';
+  static const String hen = 'assets/images/animals/hen.jpg';
+  static const String horse = 'assets/images/animals/horse.jpg';
 
 
   static const List msgs = [

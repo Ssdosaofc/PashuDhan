@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pashu_dhan/Screens/Auth/LoginScreen.dart';
-import 'package:pashu_dhan/Screens/Auth/onboarding_screen.dart';
 
-import 'Screens/Landing/HomeScreen.dart';
+import 'Presentation/Screens/Auth/onboarding_screen.dart';
+
 
 
 void main() {

@@ -1,27 +1,27 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pashu_dhan/Screens/Auth/SignUpScreen.dart';
-import 'package:pashu_dhan/Screens/Landing/HomeScreen.dart';
 
+import '../../../Core/Constants/assets_constants.dart';
+import '../../../Core/Constants/color_constants.dart';
 import '../../Common/Widgets/info_card.dart';
 import '../../Common/Widgets/primary_button.dart';
 import '../../Common/Widgets/text_box.dart';
-import '../../Core/Constants/assets_constants.dart';
-import '../../Core/Constants/color_constants.dart';
-import '../Landing/Dashboard.dart';
+import '../Landing/Dashboard/Dashboard.dart';
+import 'LoginScreen.dart';
 
-class Loginscreen extends StatefulWidget {
-  const Loginscreen({super.key});
+class Signupscreen extends StatefulWidget {
+  const Signupscreen({super.key});
 
   @override
-  State<Loginscreen> createState() => _LoginscreenState();
+  State<Signupscreen> createState() => _SignupscreenState();
 }
 
-class _LoginscreenState extends State<Loginscreen> {
+class _SignupscreenState extends State<Signupscreen> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   int range = 1;
 
@@ -39,8 +39,7 @@ class _LoginscreenState extends State<Loginscreen> {
           Padding(
             padding: EdgeInsets.all(15.0),
             child: Center(
-              child: InfoCard(
-                // height: 400,
+                child: InfoCard(
                     child: SingleChildScrollView(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20.0,
@@ -50,24 +49,32 @@ class _LoginscreenState extends State<Loginscreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Namaste!',
-                                style: TextStyle(color: ColorConstants.c1C5D43,fontSize: 35,
+                            Text('Welcome to PashuDhan!',
+                                style: TextStyle(color: ColorConstants.c1C5D43,fontSize: 27,
                                     fontWeight: FontWeight.w900)),
-                            Text('Login to Get Started.',
+                            Text('Sign Up to Get Started.',
                                 style: TextStyle(color: ColorConstants.c1C5D43,fontSize: 20,
                                     fontWeight: FontWeight.w800)),
                             SizedBox(height: 25,),
                             TextInputField(
-                                label: 'Email',
-                                hint: 'johnsmith18@example.com',
-                                controller: emailController,
+                              label: 'Email',
+                              hint: 'johnsmith18@example.com',
+                              controller: emailController,
                               prefixIcon: Icons.email_outlined,
                             ),
                             SizedBox(height: 15,),
                             TextInputField(
-                                label: 'Password',
-                                hint: '••••••',
-                                controller: passwordController,
+                              label: 'Password',
+                              hint: '••••••',
+                              controller: passwordController,
+                              prefixIcon: Icons.password_outlined,
+                              obscure: true,
+                            ),
+                            SizedBox(height: 15,),
+                            TextInputField(
+                              label: 'Confirm Password',
+                              hint: '••••••',
+                              controller: confirmPasswordController,
                               prefixIcon: Icons.password_outlined,
                               obscure: true,
                             ),
@@ -82,7 +89,7 @@ class _LoginscreenState extends State<Loginscreen> {
                               child: Row(
                                 children: [
                                   SizedBox(width: 15,),
-                                  Text('Role:',style: TextStyle(color: ColorConstants.c999999,)),
+                                  Text('Sign up as:',style: TextStyle(color: ColorConstants.c999999,)),
                                   SizedBox(width: 15,),
                                   Expanded(
                                     child: DropdownButton(
@@ -121,19 +128,19 @@ class _LoginscreenState extends State<Loginscreen> {
                                 onPressed: (){
                                   switch(range){
                                     case 1:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        HomeScreen()), (Route<dynamic> route) => false);
+                                        Dashboard()), (Route<dynamic> route) => false);
                                     case 2:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        HomeScreen()), (Route<dynamic> route) => false);
+                                        Dashboard()), (Route<dynamic> route) => false);
                                     case 3:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        HomeScreen()), (Route<dynamic> route) => false);
+                                        Dashboard()), (Route<dynamic> route) => false);
                                   }
                                 },
-                                text: "Login"
+                                text: "Sign Up"
                             ),
                             SizedBox(height: 15,),
                             TextButton(
-                              onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context) => Signupscreen())),
-                                child: Text('Don\'t have an account? Sign up',
+                                onPressed: ()=>Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Loginscreen())),
+                                child: Text('Already have an account? Login',
                                   style: TextStyle(color: Colors.grey[800],fontSize: 15),)
                             )
                           ],

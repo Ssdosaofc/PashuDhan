@@ -3,10 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../Core/Constants/assets_constants.dart';
-import '../../Core/Constants/color_constants.dart';
-import 'LiveStock.dart';
-import 'Profile/profile.dart';
+import 'package:pashu_dhan/Presentation/Common/custom_snackbar.dart';
+import '../../../../Core/Constants/assets_constants.dart';
+import '../../../../Core/Constants/color_constants.dart';
+import '../LiveStock.dart';
+import '../Profile/profile.dart';
 
 class Dashboard extends StatefulWidget {
   final VoidCallback? goToLivestock;
@@ -16,7 +17,121 @@ class Dashboard extends StatefulWidget {
   State<Dashboard> createState() => _DashboardState();
 }
 
+
+
 class _DashboardState extends State<Dashboard> {
+
+  void _showAddAnimalSheet() {
+    final TextEditingController searchController = TextEditingController();
+    final List<String> allAnimals = [
+      "Cow",
+      "Goat",
+      "Sheep",
+      "Buffalo",
+      "Hen",
+      "Camel",
+      "Horse",
+      "Duck"
+    ];
+    List<String> filteredAnimals = List.from(allAnimals);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: ColorConstants.cF2F2F2,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Add Animal",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Search Field
+                  TextField(
+                    controller: searchController,
+                    onChanged: (query) {
+                      setState(() {
+                        filteredAnimals = allAnimals
+                            .where((animal) =>
+                            animal.toLowerCase().contains(query.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: "Search animal...",
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Animal List
+                  SizedBox(
+                    height: 250,
+                    child: ListView.builder(
+                      itemCount: filteredAnimals.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            leading: const Icon(Icons.pets, color: Colors.green),
+                            title: Text(filteredAnimals[index]),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.add_circle,
+                                  color: Colors.teal),
+                              onPressed: () {
+                                Navigator.pop(context, filteredAnimals[index]);
+                                // you can also add logic here to save the animal
+                                CustomSnackbar.showSnackBar(text: "${filteredAnimals[index]} added successfully!", context: context);
+
+                              },
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -218,17 +333,29 @@ class _DashboardState extends State<Dashboard> {
   Widget _quickAction(String icon, String label) {
     return Column(
       children: [
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: Colors.green[50],
-          child:SvgPicture.asset(icon, width: 24, height: 24,
-            color: Colors.green,),
+        GestureDetector(
+          onTap: () {
+            if (label == "Add Animal") {
+              _showAddAnimalSheet();
+            }
+          },
+          child: CircleAvatar(
+            radius: 28,
+            backgroundColor: Colors.green[50],
+            child: SvgPicture.asset(
+              icon,
+              width: 28,
+              height: 28,
+              color: Colors.green,
+            ),
+          ),
         ),
         const SizedBox(height: 6),
         Text(label, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
+
 
   Widget _activityItem(String text, bool success) {
     return ListTile(

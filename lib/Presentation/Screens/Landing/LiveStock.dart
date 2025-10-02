@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../Core/Constants/assets_constants.dart';
-import '../../Core/Constants/color_constants.dart';
+import '../../../Core/Constants/assets_constants.dart';
+import '../../../Core/Constants/color_constants.dart';
 
 class Livestock extends StatefulWidget {
   final VoidCallback? onBack;
@@ -17,16 +17,16 @@ class _LivestockState extends State<Livestock> {
     'Cow - A002',
     'Goat - B101',
     'Sheep - C305',
-    'Cow - A003',
+    'Hen - A003',
     'Goat - B102',
     'Sheep - C306',
     'Cow - A001',
-    'Cow - A002',
-    'Goat - B101',
+    'Duck - A002',
+    'Horse - B101',
     'Sheep - C305',
     'Cow - A003',
     'Goat - B102',
-    'Sheep - C306',
+    'Camel - C306',
   ];
 
   List<String> _filteredList = [];
@@ -110,24 +110,83 @@ class _LivestockState extends State<Livestock> {
                   imageAsset = AssetsConstants.goat;
                 } else if (item.toLowerCase().contains('sheep')) {
                   imageAsset = AssetsConstants.sheeps;
-                } else {
+                }
+                else if (item.toLowerCase().contains('duck')) {
+                  imageAsset = AssetsConstants.duck;
+                }
+                else if (item.toLowerCase().contains('camel')) {
+                  imageAsset = AssetsConstants.camel;
+                }
+                else if (item.toLowerCase().contains('horse')) {
+                  imageAsset = AssetsConstants.horse;
+                }
+                else if (item.toLowerCase().contains('hen')) {
+                  imageAsset = AssetsConstants.hen;
+                }
+                else {
                   imageAsset = AssetsConstants.sheeps;
                 }
 
-                return Card(
-                  color: Colors.white,
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    leading: Image.asset(
-                      imageAsset,
-                      width: 40,
-                      height: 40,
+                return GestureDetector(
+                  onTap: (){
+
+                  },
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 4,
+                    shadowColor: Colors.black26,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    title: Text(item),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(
+                              imageAsset,
+                              width: 100,
+                              height: 100,
+                              // fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  "Healthy | ID #${index + 1001}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Action icon (optional)
+                          Icon(Icons.arrow_forward_ios, size: 18, color: Colors.grey[400]),
+                        ],
+                      ),
+                    ),
                   ),
                 );
+
               },
             ),
           )

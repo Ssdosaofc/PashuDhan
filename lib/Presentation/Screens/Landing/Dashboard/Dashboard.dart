@@ -23,17 +23,20 @@ class _DashboardState extends State<Dashboard> {
 
   void _showAddAnimalSheet() {
     final TextEditingController searchController = TextEditingController();
-    final List<String> allAnimals = [
-      "Cow",
-      "Goat",
-      "Sheep",
-      "Buffalo",
-      "Hen",
-      "Camel",
-      "Horse",
-      "Duck"
-    ];
-    List<String> filteredAnimals = List.from(allAnimals);
+
+
+    final Map<String, String> allAnimals = {
+      "Cow": AssetsConstants.cow,
+      "Goat": AssetsConstants.goat,
+      "Sheep": AssetsConstants.sheeps,
+      "Buffalo": AssetsConstants.female_buffalo,
+      "Hen": AssetsConstants.hen,
+      "Camel": AssetsConstants.camel,
+      "Horse": AssetsConstants.horse,
+      "Duck": AssetsConstants.duck,
+    };
+
+    List<String> filteredAnimals = allAnimals.keys.toList();
 
     showModalBottomSheet(
       context: context,
@@ -75,7 +78,7 @@ class _DashboardState extends State<Dashboard> {
                     controller: searchController,
                     onChanged: (query) {
                       setState(() {
-                        filteredAnimals = allAnimals
+                        filteredAnimals = allAnimals.keys
                             .where((animal) =>
                             animal.toLowerCase().contains(query.toLowerCase()))
                             .toList();
@@ -96,26 +99,36 @@ class _DashboardState extends State<Dashboard> {
 
                   // Animal List
                   SizedBox(
-                    height: 250,
+                    height: 300,
                     child: ListView.builder(
                       itemCount: filteredAnimals.length,
                       itemBuilder: (context, index) {
+                        String animalName = filteredAnimals[index];
+                        String imageAsset = allAnimals[animalName] ?? AssetsConstants.cow;
+
                         return Card(
                           color: Colors.white,
+                          margin: const EdgeInsets.symmetric(vertical: 6),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListTile(
-                            leading: const Icon(Icons.pets, color: Colors.green),
-                            title: Text(filteredAnimals[index]),
+                            leading: Image.asset(
+                              imageAsset,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.contain,
+                            ),
+                            title: Text(animalName,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                             trailing: IconButton(
-                              icon: const Icon(Icons.add_circle,
-                                  color: Colors.teal),
+                              icon: const Icon(Icons.add_circle, color: Colors.teal, size: 28),
                               onPressed: () {
-                                Navigator.pop(context, filteredAnimals[index]);
-                                // you can also add logic here to save the animal
-                                CustomSnackbar.showSnackBar(text: "${filteredAnimals[index]} added successfully!", context: context);
-
+                                Navigator.pop(context, animalName);
+                                CustomSnackbar.showSnackBar(
+                                  text: "$animalName added successfully!",
+                                  context: context,
+                                );
                               },
                             ),
                           ),
@@ -131,6 +144,7 @@ class _DashboardState extends State<Dashboard> {
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +258,18 @@ class _DashboardState extends State<Dashboard> {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: widget.goToLivestock,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Livestock(
+                              onBack: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        );
+                      },
                       child: _infoCard("Total Livestock", "452",
                           "+15 head this month", Icons.pets, Colors.teal),
                     ),

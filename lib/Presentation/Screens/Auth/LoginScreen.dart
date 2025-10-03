@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
 
 import '../../../Core/Constants/assets_constants.dart';
 import '../../../Core/Constants/color_constants.dart';
@@ -126,7 +127,7 @@ class _LoginscreenState extends State<Loginscreen> {
                                     case 2:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
                                         HomeScreen()), (Route<dynamic> route) => false);
                                     case 3:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        HomeScreen()), (Route<dynamic> route) => false);
+                                        VetHomeScreen()), (Route<dynamic> route) => false);
                                   }
                                 },
                                 text: "Login"

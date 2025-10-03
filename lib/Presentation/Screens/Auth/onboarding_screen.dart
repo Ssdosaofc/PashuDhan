@@ -42,12 +42,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(10.0),
                                       child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Image.asset(e['link'],height: 175,),
+                                          Image.asset(e['link'],
+                                            height: 175,
+                                          ),
                                           SizedBox(height: 25,),
+                                          if(currentIndex == 0)
+                                            Text('Welcome to PashuDhan',style: TextStyle(color: ColorConstants.c1C5D43,
+                                              fontWeight: FontWeight.bold,fontSize: 25),
+                                          ),
                                           Text(e['msg'],
                                             style: TextStyle(color: ColorConstants.c1C5D43,
-                                                fontWeight: FontWeight.w800,fontSize: 20),
+                                                fontWeight: FontWeight.normal,fontSize: 20),
                                             textAlign: TextAlign.center,)
                                         ],
                                       ),
@@ -55,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 )
                             ).toList(),
                             options: CarouselOptions(
-                                height: MediaQuery.of(context).size.height*0.4,
+                                height: MediaQuery.of(context).size.height*0.7,
                                 enlargeCenterPage: true,
                                 enableInfiniteScroll: false,
                                 onPageChanged: (index, reason){

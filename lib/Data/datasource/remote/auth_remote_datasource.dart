@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:pashu_dhan/Core/Constants/app_constants.dart';
 
 import '../../models/user_model.dart';
 
 
 class AuthRemoteDataSource {
   final http.Client client;
-  final String baseUrl = "http://10.0.2.2:5000/api/auth";
+  final baseUrl=AppConstants().baseUrl;
+
+
 
   AuthRemoteDataSource(this.client);
 
@@ -45,7 +48,7 @@ class AuthRemoteDataSource {
 
     final data = jsonDecode(response.body);
     if (response.statusCode == 200) {
-
+      print(UserModel.fromJson(data));
       return UserModel.fromJson(data);
     } else {
       throw data['error'] ?? 'Failed to login';

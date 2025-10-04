@@ -1,11 +1,13 @@
 import '../../Domain/entities/user_entity.dart';
 import '../../Domain/repository/auth_repository.dart';
+import '../datasource/local/local_datasource.dart';
 import '../datasource/remote/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
+  final LocalDatasource localDatasource;
 
-  AuthRepositoryImpl(this.remoteDataSource);
+  AuthRepositoryImpl(this.remoteDataSource, this.localDatasource);
 
   @override
   Future<UserEntity> signup(
@@ -18,11 +20,15 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> login(String email, String password,String role) async {
     final userModel = await remoteDataSource.login(email, password, role);
+
+    if(userModel.token != null){
+      await localDatasource.writeAccessToken(userModel.token!);
+    }
     return userModel;
   }
 
   @override
   Future<void> logout(String token) async {
-    await remoteDataSource.logout(token);
+    await localDatasource.clearAccessToken();
   }
 }

@@ -55,7 +55,9 @@ dev_dependencies:
   google_fonts:
   flutter_bloc:
   http:
-  equatable: 
+  equatable:
+  flutter_secure_storage:
+  dartz:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

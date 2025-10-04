@@ -49,7 +49,8 @@ class AnimalRemoteDataSource {
           .map((e) => AnimalModel.fromJson(e))
           .toList();
       final totalCount = data['totalCount'] as int;
-      return {'animals': animals, 'totalCount': totalCount};
+      final monthlyCount = data['monthlyCount'] as int;
+      return {'animals': animals, 'totalCount': totalCount, 'monthlyCount': monthlyCount};
     } else {
       throw Exception(jsonDecode(response.body)['error'] ?? 'Failed to fetch animals');
     }

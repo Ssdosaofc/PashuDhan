@@ -7,6 +7,7 @@ import '../../../Core/Constants/color_constants.dart';
 import '../../../Presentation/bloc/animal_bloc/animal_bloc.dart';
 import '../../../Presentation/bloc/animal_bloc/animal_event.dart';
 import '../../../Presentation/bloc/animal_bloc/animal_state.dart';
+import '../../Common/Widgets/livestock_card.dart';
 import 'Dashboard/animal_dashboard.dart';
 
 class Livestock extends StatefulWidget {
@@ -188,102 +189,54 @@ class _LivestockState extends State<Livestock> {
                       itemCount: animals.length,
                       itemBuilder: (context, index) {
                         final animal = animals[index];
-                        final imageAsset = _getImageForAnimal(animal.name);
 
-                        return Card(
-                          color: Colors.white,
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Stack(
-                              children: [
-                                Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.asset(
-                                        imageAsset,
-                                        width: 100,
-                                        height: 100,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            animal.name,
-                                            style: const TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            "Healthy | ID #${animal.id}",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Icon(Icons.arrow_forward_ios,
-                                        size: 18, color: Colors.grey[400]),
-                                  ],
+                        return LivestockCard(
+                          animal: animal,
+                          onDelete: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                backgroundColor: ColorConstants.cFFFFFF,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                title: const Text(
+                                  "Delete Animal?",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                                Positioned(
-                                  top: -10,
-                                  right: -16,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          backgroundColor: ColorConstants.cFFFFFF,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                          title: const Text("Delete Animal?",style: TextStyle(fontWeight: FontWeight.bold),),
-                                          content: Text(
-                                              "Are you sure you want to delete ${animal.name}?"),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(context, false),
-                                              child: const Text("Cancel",style: TextStyle(color: ColorConstants.c000000),),
-                                            ),
-                                            ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.red,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                ),
-                                              ),
-                                              child: const Text("Delete", style: TextStyle(color: Colors.white)),
-                                              onPressed: () {
-                                                Navigator.of(context).pop(true);
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                      if (confirm ?? false) {
-                                        context
-                                            .read<AnimalBloc>()
-                                            .add(DeleteAnimalEvent(animalId: animal.id));
-                                      }
-                                    },
+                                content: Text("Are you sure you want to delete ${animal.name}?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text("Cancel", style: TextStyle(color: ColorConstants.c000000)),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text("Delete", style: TextStyle(color: Colors.white)),
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm ?? false) {
+                              context.read<AnimalBloc>().add(DeleteAnimalEvent(animalId: animal.id));
+                            }
+                          },
+                          onTap: () {
+                            final imageAsset = _getImageForAnimal(animal.name);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AnimalDetailScreen(
+                                  animalId: animal.id,
+                                  imageAsset: imageAsset,
+                                  animal: animal,),
+                              ),
+                            );
+                          },
                         );
                       },
                     );

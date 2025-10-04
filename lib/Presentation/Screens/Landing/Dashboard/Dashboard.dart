@@ -314,18 +314,17 @@ class _DashboardState extends State<Dashboard> {
                       child: BlocBuilder<AnimalBloc, AnimalState>(
                         builder: (context, state) {
                           int? totalCount = 0;
+                          int? monthlyCount=0;
 
                           if (state is AnimalSuccess) {
                             totalCount = state.totalCount;
-                            // } else if (state is AnimalLoading && state is! AnimalInitial) {
-                            //   totalCount = state is AnimalSuccess ? state.totalCount : 0;
-                            // }
+                            monthlyCount = state.monthlyCount;
                           }
 
                           return _infoCard(
                             "Total Livestock",
                             totalCount.toString(),
-                            "+15 head this month",
+                            "+${monthlyCount.toString()} head this month",
                             Icons.pets,
                             Colors.teal,
                           );

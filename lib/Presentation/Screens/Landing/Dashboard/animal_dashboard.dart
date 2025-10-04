@@ -3,16 +3,18 @@ import 'package:intl/intl.dart'; // Add this import for date formatting
 import 'package:pashu_dhan/Presentation/Common/custom_snackbar.dart';
 
 import '../../../../Core/Constants/color_constants.dart';
+import '../../../../Domain/entities/animal_entity.dart';
 import '../../../../Domain/entities/treatment_entity.dart'; // Assuming this defines your Treatment class
 
 class AnimalDetailScreen extends StatefulWidget {
   final String animalId;
   final String imageAsset;
+  final AnimalEntity animal;
 
   const AnimalDetailScreen({
     super.key,
     required this.animalId,
-    required this.imageAsset,
+    required this.imageAsset, required this.animal,
   });
 
   @override
@@ -228,7 +230,7 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           "Animal Details",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
         ),
       ),
       body: ListView(
@@ -265,7 +267,7 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
                 widget.imageAsset,
                 width: 120,
                 height: 120,
-                fit: BoxFit.cover,
+                // fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: 16),
@@ -273,6 +275,7 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  _buildInfoRow(Icons.bookmark, widget.animal.name,Colors.black,FontWeight.bold),
                   Text(
                     widget.animalId,
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -290,9 +293,7 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _buildInfoRow(Icons.tag, "ID: #1001"),
-                  const SizedBox(height: 4),
-                  _buildInfoRow(Icons.cake, "Age: 3 Years"),
+                  _buildInfoRow(Icons.cake, "Age: 3 Years",Colors.grey[600]!,FontWeight.normal),
                 ],
               ),
             )
@@ -302,12 +303,12 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildInfoRow(IconData icon, String text,Color color,FontWeight fontwt) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
+        Icon(icon, size: 16, color: Colors.black),
         const SizedBox(width: 8),
-        Text(text, style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+        Text(text, style: TextStyle(fontSize: 16, color: color,fontWeight: fontwt)),
       ],
     );
   }

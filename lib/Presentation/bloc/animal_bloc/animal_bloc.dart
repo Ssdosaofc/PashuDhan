@@ -28,7 +28,8 @@ class AnimalBloc extends Bloc<AnimalEvent, AnimalState> {
       final result = await getAnimalsUseCase();
       final animals = result['animals'] as List<AnimalEntity>;
       final totalCount = result['totalCount'] as int;
-      emit(AnimalSuccess(animals: animals, totalCount: totalCount));
+      final monthlyCount = result['monthlyCount'] as int;
+      emit(AnimalSuccess(animals: animals, totalCount: totalCount, monthlyCount: monthlyCount));
     } catch (e) {
       emit(AnimalFailure(e.toString()));
     }
@@ -42,10 +43,12 @@ class AnimalBloc extends Bloc<AnimalEvent, AnimalState> {
       final result = await getAnimalsUseCase();
       final animals = result['animals'] as List<AnimalEntity>;
       final totalCount = result['totalCount'] as int;
+      final monthlyCount = result['monthlyCount'] as int;
 
       emit(AnimalSuccess(
         animals: animals,
         totalCount: totalCount,
+        monthlyCount: monthlyCount,
         animal: addedAnimal,
         lastAction: AnimalAction.add,
       ));
@@ -64,10 +67,12 @@ class AnimalBloc extends Bloc<AnimalEvent, AnimalState> {
 
       final updatedAnimals = currentAnimals.where((a) => a.id != event.animalId).toList();
       final totalCount = updatedAnimals.length;
+      final monthlyCount = state is AnimalSuccess ? (state as AnimalSuccess).monthlyCount : 0;
 
       emit(AnimalSuccess(
         animals: updatedAnimals,
         totalCount: totalCount,
+        monthlyCount: monthlyCount,
         lastAction: AnimalAction.delete,
       ));
     } catch (e) {

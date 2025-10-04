@@ -22,10 +22,11 @@ class AnimalDeletedSuccess extends AnimalState {}
 class AnimalSuccess extends AnimalState {
   final List<AnimalEntity> animals;
   final int? totalCount;
+  final int? monthlyCount;
   final AnimalEntity? animal;
   final AnimalAction lastAction;
 
-  const AnimalSuccess( {this.animals = const [], required this.totalCount,this.animal, this.lastAction = AnimalAction.none});
+  const AnimalSuccess( {this.animals = const [], required this.totalCount,required this.monthlyCount,this.animal, this.lastAction = AnimalAction.none});
 
   @override
   List<Object?> get props => [animals, animal,totalCount];

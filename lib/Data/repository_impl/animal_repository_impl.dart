@@ -13,6 +13,7 @@ class AnimalRepositoryImpl implements AnimalRepository {
     final data = await remoteDS.getAnimals();
     final List<AnimalModel> models = data['animals'];
     final int totalCount = data['totalCount'] ?? models.length;
+    final int monthlyCount = data['monthlyCount'] ?? 0;
 
     final List<AnimalEntity> entities =
     models.map((model) => AnimalEntity(id: model.id, name: model.name, type: model.type))
@@ -21,6 +22,7 @@ class AnimalRepositoryImpl implements AnimalRepository {
     return {
       'animals': entities,
       'totalCount': totalCount,
+      'monthlyCount': monthlyCount,
     };
   }
 

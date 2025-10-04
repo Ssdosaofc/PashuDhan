@@ -1,4 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:pashu_dhan/Domain/entities/user_entity.dart';
+
+import '../../../Data/models/user_model.dart';
 
 abstract class AuthState extends Equatable {
   @override
@@ -19,4 +22,16 @@ class AuthFailure extends AuthState {
 
   @override
   List<Object?> get props => [error];
+}
+
+class UpdateProfileLoading extends AuthState {}
+
+class UpdateProfileSuccess extends AuthState {
+  final UserEntity user;
+  UpdateProfileSuccess(this.user);
+}
+
+class UpdateProfileFailure extends AuthState {
+  final String error;
+  UpdateProfileFailure(this.error);
 }

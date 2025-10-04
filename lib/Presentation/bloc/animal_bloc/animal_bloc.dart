@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../Domain/entities/animal_entity.dart';
-import '../../../Domain/usecases/add_animal_usecase.dart';
-import '../../../Domain/usecases/get_animal_usecase.dart';
-import '../../../Domain/usecases/delete_animal_usecase.dart';
+import '../../../Domain/usecases/animal_usecases/add_animal_usecase.dart';
+import '../../../Domain/usecases/animal_usecases/get_animal_usecase.dart';
+import '../../../Domain/usecases/animal_usecases/delete_animal_usecase.dart';
 import 'animal_event.dart';
 import 'animal_state.dart';
 

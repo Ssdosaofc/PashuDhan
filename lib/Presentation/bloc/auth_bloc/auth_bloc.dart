@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../Data/models/user_model.dart';
 import '../../../Domain/usecases/auth_usecase/login_usecase.dart';
 import '../../../Domain/usecases/auth_usecase/signup_usecase.dart';
 import '../../../Domain/usecases/auth_usecase/logout_usecase.dart';
+import '../../../Domain/usecases/auth_usecase/update_profile_usecase.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -9,15 +11,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignupUseCase signupUseCase;
   final LoginUseCase loginUseCase;
   final LogoutUseCase logoutUseCase;
+  final UpdateProfileUseCase updateProfileUseCase;
 
-  AuthBloc({
+  AuthBloc( {
     required this.signupUseCase,
     required this.loginUseCase,
     required this.logoutUseCase,
+    required this.updateProfileUseCase,
   }) : super(AuthInitial()) {
     on<SignupEvent>(_onSignup);
     on<LoginEvent>(_onLogin);
     on<LogoutEvent>(_onLogout);
+    on<UpdateProfileEvent>(_onUpdateProfile);
   }
 
   Future<void> _onSignup(SignupEvent event, Emitter<AuthState> emit) async {
@@ -54,4 +59,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthFailure(e.toString()));
     }
   }
+
+  Future<void> _onUpdateProfile(UpdateProfileEvent event, Emitter<AuthState> emit) async {
+    emit(UpdateProfileLoading());
+    try {
+      final updatedUser = await updateProfileUseCase.updateProfile(name: event.name, role: event.role);
+      emit(UpdateProfileSuccess(updatedUser));
+    } catch (e) {
+      emit(UpdateProfileFailure(e.toString()));
+    }
+  }
+
+
+
 }

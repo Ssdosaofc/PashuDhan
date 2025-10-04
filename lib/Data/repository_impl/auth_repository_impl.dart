@@ -2,6 +2,7 @@ import '../../Domain/entities/user_entity.dart';
 import '../../Domain/repository/auth_repository.dart';
 import '../datasource/local/local_datasource.dart';
 import '../datasource/remote/auth_remote_datasource.dart';
+import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -28,7 +29,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserEntity> updateProfile({required String name, String? role}) async {
+    final response = await remoteDataSource.updateProfile(name: name, role: role);
+
+    return UserEntity(
+      name: response.name,
+      email: response.email,
+      role: response.role,
+      token: response.token,
+    );
+  }
+
+
+  @override
   Future<void> logout(String token) async {
     await localDatasource.clearAccessToken();
   }
+
+
 }

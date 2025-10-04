@@ -3,13 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:pashu_dhan/Core/Constants/app_constants.dart';
 
 import '../../models/user_model.dart';
+import '../local/local_datasource.dart';
 
 
 class AuthRemoteDataSource {
   final http.Client client;
   final baseUrl=AppConstants().baseUrl;
-
-
 
   AuthRemoteDataSource(this.client);
 
@@ -25,7 +24,6 @@ class AuthRemoteDataSource {
         'role': role,
       }),
     );
-    print(response.body);
     final data = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
@@ -55,6 +53,30 @@ class AuthRemoteDataSource {
     }
   }
 
+  Future<UserModel> updateProfile({required String name, String? role}) async {
+    final localDatasource = LocalDatasource();
+    final token = await localDatasource.getAccessToken();
+
+    final response = await client.post(
+      Uri.parse('$baseUrl/update-profile'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'name': name, 'role': role}),
+    );
+    print(response.body);
+
+    final data = jsonDecode(response.body);
+    print("UpdateProfile response: $data");
+    if (response.statusCode == 200) {
+      return UserModel.fromJson(data['user']);
+    } else {
+      throw data['error'] ?? 'Failed to update profile';
+    }
+  }
+
   Future<void> logout(String token) async {
+
   }
 }

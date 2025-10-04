@@ -1,4 +1,4 @@
-import '../repository/animal_repository.dart';
+import '../../repository/animal_repository.dart';
 
 class DeleteAnimalUseCase {
   final AnimalRepository repository;

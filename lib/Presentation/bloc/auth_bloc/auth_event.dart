@@ -28,3 +28,10 @@ class LogoutEvent extends AuthEvent {
   @override
   List<Object?> get props => [token];
 }
+
+class UpdateProfileEvent extends AuthEvent {
+  final String name;
+  final String? role;
+
+  UpdateProfileEvent({required this.name, this.role});
+}

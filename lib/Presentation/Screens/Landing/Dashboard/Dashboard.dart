@@ -10,6 +10,9 @@ import '../../../Common/custom_snackbar.dart';
 import '../../../bloc/animal_bloc/animal_bloc.dart';
 import '../../../bloc/animal_bloc/animal_event.dart';
 import '../../../bloc/animal_bloc/animal_state.dart';
+import '../../../bloc/auth_bloc/auth_bloc.dart';
+import '../../../bloc/auth_bloc/auth_event.dart';
+import '../../../bloc/auth_bloc/auth_state.dart';
 import '../LiveStock.dart';
 import '../Profile/profile.dart';
 
@@ -27,7 +30,64 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     super.initState();
     context.read<AnimalBloc>().add(GetAnimalsEvent());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthBloc>().state;
+      String? userName;
+      if (authState is UpdateProfileSuccess) {
+        userName = authState.user.name;
+      }
+      if (userName == null || userName.isEmpty) {
+        _showNameDialog();
+      }
+    });
+
   }
+
+  void _showNameDialog() {
+    final TextEditingController nameController = TextEditingController();
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text(
+          "Enter Your Name",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: nameController,
+          style: TextStyle(fontWeight: FontWeight.w500),
+          decoration: const InputDecoration(
+            hintText: "Name",
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.trim().isEmpty) {
+                CustomSnackbar.showSnackBar(text: "Name cannot be empty!", context: context);
+                return;
+              }
+
+              context.read<AuthBloc>().add(UpdateProfileEvent(name: nameController.text.trim()));
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorConstants.c1C5D43,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text("Proceed",style: TextStyle(color: Colors.white),),
+          ),
+        ],
+      ),
+    );
+  }
+
 
 
   void _showConfirmationDialog(String animalName, String animalType, BuildContext sheetContext) {
@@ -189,21 +249,39 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AnimalBloc, AnimalState>(
-      listener: (context, state) {
-        if (state is AnimalLoading) {
-        } else if (state is AnimalSuccess && state.animal != null) {
-          CustomSnackbar.showSnackBar(
-            text: "${state.animal!.name} added successfully!",
-            context: context,
-          );
-        } else if (state is AnimalFailure) {
-          CustomSnackbar.showSnackBar(
-            text: "Failed to add animal: ${state.error}",
-            context: context,
-          );
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AnimalBloc, AnimalState>(
+          listener: (context, state) {
+            if (state is AnimalSuccess && state.animal != null) {
+              CustomSnackbar.showSnackBar(
+                text: "${state.animal!.name} added successfully!",
+                context: context,
+              );
+            } else if (state is AnimalFailure) {
+              CustomSnackbar.showSnackBar(
+                text: "Failed to add animal: ${state.error}",
+                context: context,
+              );
+            }
+          },
+        ),
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is UpdateProfileSuccess) {
+              CustomSnackbar.showSnackBar(
+                text: "Profile updated successfully! Welcome ${state.user.name}",
+                context: context,
+              );
+            } else if (state is UpdateProfileFailure) {
+              CustomSnackbar.showSnackBar(
+                text: "Failed to update profile: ${state.error}",
+                context: context,
+              );
+            }
+          },
+        ),
+      ],
       child: Stack(
         children: [
           Container(
@@ -255,14 +333,23 @@ class _DashboardState extends State<Dashboard> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  "Welcome back, Badam!",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    String name = "Guest";
+                    if (state is UpdateProfileSuccess) {
+                      name = state.user.name ?? "Guest";
+                    }
+                    return Text(
+                      "Welcome back, $name!",
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
                 ),
+
                 const SizedBox(height: 6),
                 Text(
                   DateFormat('MMMM dd, yyyy').format(DateTime.now()),

@@ -38,6 +38,7 @@ dependencies:
   dio:
   get_it:
   talker_dio_logger:
+  flutter_bloc:
 
 dev_dependencies:
   flutter_test:

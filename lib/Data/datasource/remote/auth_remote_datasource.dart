@@ -53,7 +53,7 @@ class AuthRemoteDataSource {
     }
   }
 
-  Future<UserModel> updateProfile({required String name, String? role}) async {
+  Future<UserModel> updateProfile({required String name, String? role, String? phoneNumber}) async {
     final localDatasource = LocalDatasource();
     final token = await localDatasource.getAccessToken();
 
@@ -63,7 +63,7 @@ class AuthRemoteDataSource {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({'name': name, 'role': role}),
+      body: jsonEncode({'name': name, 'role': role, 'phoneNumber': phoneNumber}),
     );
     print(response.body);
 

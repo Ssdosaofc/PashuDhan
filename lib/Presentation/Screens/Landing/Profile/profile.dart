@@ -31,9 +31,10 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _editProfile(String currentName, String currentRole) {
+  void _editProfile(String currentName, String currentRole, String currentPhone) {
     TextEditingController nameController = TextEditingController(text: currentName);
     TextEditingController roleController = TextEditingController(text: currentRole);
+    TextEditingController phoneController = TextEditingController(text: currentPhone);
 
     showModalBottomSheet(
       context: context,
@@ -58,10 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 controller: nameController,
                 decoration: InputDecoration(
                   labelText: "Name",
-                  labelStyle: TextStyle(
-                      color: ColorConstants.c1C5D43, fontWeight: FontWeight.w500),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -69,11 +67,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 controller: roleController,
                 decoration: InputDecoration(
                   labelText: "Role",
-                  labelStyle: TextStyle(
-                      color: ColorConstants.c1C5D43, fontWeight: FontWeight.w500),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: phoneController,
+                decoration: InputDecoration(
+                  labelText: "Phone Number",
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               ElevatedButton(
@@ -86,10 +90,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   final newName = nameController.text.trim();
                   final newRole = roleController.text.trim();
+                  final newPhone = phoneController.text.trim();
 
-                  if (newName.isEmpty) return;
+                  if (newName.isEmpty || newPhone.isEmpty) return;
 
-                  context.read<AuthBloc>().add(UpdateProfileEvent(name: newName, role: newRole));
+                  // Trigger update event
+                  context.read<AuthBloc>().add(UpdateProfileEvent(
+                    name: newName,
+                    role: newRole,
+                    phoneNumber: newPhone,
+                  ));
 
                   Navigator.pop(context);
                 },
@@ -109,10 +119,17 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, authState) {
         String userName = "Guest";
         String userRole = "Unknown";
+        String userPhoneNumber = "";
 
         if (authState is UpdateProfileSuccess) {
           userName = authState.user.name ?? "Guest";
           userRole = authState.user.role;
+          userPhoneNumber = authState.user.phoneNumber ?? "";
+        }
+        if(authState is AuthSuccess){
+          userName = authState.name ?? "Guest";
+          userPhoneNumber = authState.phoneNumber ?? "";
+          userRole = authState.role ?? "Unknown";
         }
 
         return Scaffold(
@@ -165,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             bottom: 0,
                             right: 4,
                             child: GestureDetector(
-                              onTap: () => _editProfile(userName, userRole),
+                              onTap: () => _editProfile(userName, userRole,userPhoneNumber),
                               child: Container(
                                 padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
@@ -195,6 +212,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(userRole,
                           style:
                           const TextStyle(color: Colors.white70, fontSize: 16)),
+                      const SizedBox(height: 4),
+                      Text(userPhoneNumber,
+                          style: const TextStyle(color: Colors.white70, fontSize: 16)),
+
                     ],
                   ),
                 ),
@@ -230,7 +251,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _quickAction(Icons.edit, "Edit", () => _editProfile(userName, userRole)),
+                      _quickAction(Icons.edit, "Edit", () => _editProfile(userName, userRole,userPhoneNumber)),
                       _quickAction(Icons.add, "Add Animal", () {}),
                       _quickAction(Icons.bar_chart, "Reports", () {}),
                       _quickAction(Icons.settings, "Settings", () {}),

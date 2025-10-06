@@ -13,8 +13,10 @@ class AuthLoading extends AuthState {}
 class AuthSuccess extends AuthState {
   final String? token;
   final String? role;
+  final String? name;
+  final String? phoneNumber;
   final String? message;
-  AuthSuccess({this.token, this.role, this.message});
+  AuthSuccess({this.token, this.role, this.message, this.name, this.phoneNumber});
 }
 class AuthFailure extends AuthState {
   final String error;

@@ -29,11 +29,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> updateProfile({required String name, String? role}) async {
-    final response = await remoteDataSource.updateProfile(name: name, role: role);
+  Future<UserEntity> updateProfile({required String name, String? role, String? phoneNumber}) async {
+    final response = await remoteDataSource.updateProfile(name: name, role: role, phoneNumber: phoneNumber);
 
     return UserEntity(
       name: response.name,
+      phoneNumber: response.phoneNumber,
       email: response.email,
       role: response.role,
       token: response.token,

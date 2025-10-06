@@ -6,7 +6,8 @@ class UserModel extends UserEntity {
     required String role,
     this.name,
     String? token,
-  }) : super(email: email, role: role, token: token, name: name);
+    String? phoneNumber,
+  }) : super(email: email, role: role, token: token, name: name, phoneNumber: phoneNumber,);
 
   final String? name;
 
@@ -16,6 +17,7 @@ class UserModel extends UserEntity {
       role: json['role'] ?? 'unknown',
       token: json['token'],
       name: json['name'],
+      phoneNumber: json['phoneNumber'],
     );
   }
 
@@ -25,6 +27,7 @@ class UserModel extends UserEntity {
       'role': role,
       'token': token,
       'name': name,
+      'phoneNumber': phoneNumber,
     };
   }
 }

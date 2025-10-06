@@ -21,6 +21,8 @@ class LoginEvent extends AuthEvent {
   List<Object?> get props => [email, password,role];
 }
 
+
+
 class LogoutEvent extends AuthEvent {
   final String token;
   LogoutEvent(this.token);
@@ -32,6 +34,7 @@ class LogoutEvent extends AuthEvent {
 class UpdateProfileEvent extends AuthEvent {
   final String name;
   final String? role;
+  final String? phoneNumber;
 
-  UpdateProfileEvent({required this.name, this.role});
+  UpdateProfileEvent({required this.name, this.role, this.phoneNumber});
 }

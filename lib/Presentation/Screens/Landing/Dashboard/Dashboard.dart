@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../Core/Constants/assets_constants.dart';
 import '../../../../Core/Constants/color_constants.dart';
+import '../../../../Data/datasource/local/local_datasource.dart';
 import '../../../Common/custom_snackbar.dart';
 import '../../../bloc/animal_bloc/animal_bloc.dart';
 import '../../../bloc/animal_bloc/animal_event.dart';
@@ -26,71 +27,24 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
 
+
   @override
   void initState() {
     super.initState();
     context.read<AnimalBloc>().add(GetAnimalsEvent());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authState = context.read<AuthBloc>().state;
-      String? userName;
-      if (authState is UpdateProfileSuccess) {
-        userName = authState.user.name;
-      }
-      if (userName == null || userName.isEmpty) {
-        _showNameDialog();
-      }
-    });
-
+    printToken();
   }
 
-  void _showNameDialog() {
-    final TextEditingController nameController = TextEditingController();
-
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          "Enter Your Name",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: TextField(
-          controller: nameController,
-          style: TextStyle(fontWeight: FontWeight.w500),
-          decoration: const InputDecoration(
-            hintText: "Name",
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.trim().isEmpty) {
-                CustomSnackbar.showSnackBar(text: "Name cannot be empty!", context: context);
-                return;
-              }
-
-              context.read<AuthBloc>().add(UpdateProfileEvent(name: nameController.text.trim()));
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorConstants.c1C5D43,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text("Proceed",style: TextStyle(color: Colors.white),),
-          ),
-        ],
-      ),
-    );
+  void printToken() async {
+    final localDatasource = LocalDatasource();
+    final token = await localDatasource.getAccessToken();
+    print("Tokeeeen: $token");
   }
 
 
 
   void _showConfirmationDialog(String animalName, String animalType, BuildContext sheetContext) {
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -377,24 +331,6 @@ class _DashboardState extends State<Dashboard> {
             child: ListView(
               padding: const EdgeInsets.only(left: 16,right: 16,top: 16),
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: ColorConstants.ebddc8,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _tabChip(Icons.task, "Tasks (3)"),
-                      _tabChip(Icons.warning_amber, "Alerts (1)"),
-                      _tabChip(Icons.insert_chart, "Reports"),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Info Cards
                 Row(
                   children: [
                     Expanded(
@@ -437,7 +373,6 @@ class _DashboardState extends State<Dashboard> {
                   children: [
                     _quickAction(AssetsConstants.add, "Add Animal"),
                     _quickAction(AssetsConstants.health, "New Health Log"),
-                    _quickAction(AssetsConstants.feed, "Manage Feed"),
                     _quickAction(AssetsConstants.calendar, "View Calendar"),
                   ],
                 ),

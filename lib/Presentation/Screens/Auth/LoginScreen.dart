@@ -5,6 +5,7 @@ import 'package:pashu_dhan/Presentation/Common/custom_snackbar.dart';
 
 import '../../../Core/Constants/assets_constants.dart';
 import '../../../Core/Constants/color_constants.dart';
+import '../../../Data/datasource/local/local_datasource.dart';
 import '../../Common/Widgets/info_card.dart';
 import '../../Common/Widgets/primary_button.dart';
 import '../../Common/Widgets/text_box.dart';
@@ -25,6 +26,7 @@ class Loginscreen extends StatefulWidget {
 class _LoginscreenState extends State<Loginscreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final localDatasource = LocalDatasource();
 
   int range = 1;
 
@@ -62,6 +64,8 @@ class _LoginscreenState extends State<Loginscreen> {
                     child: BlocConsumer<AuthBloc, AuthState>(
                       listener: (context, state) {
                         if (state is AuthSuccess) {
+                          final token = state.token;
+                          localDatasource.writeAccessToken(token!);
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: (_) => HomeScreen()),

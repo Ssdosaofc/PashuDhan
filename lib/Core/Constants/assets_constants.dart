@@ -22,9 +22,9 @@ class AssetsConstants{
 
 
   static const List msgs = [
-    {'msg':'','link':''},
-    {'msg':'','link':''},
-    {'msg':'','link':''},
-    {'msg':'Let\'s begin our journey!\nचलिए शुरू करते हैं!','link':'assets/images/onboard/4.jpg'},
+    {'msg':'Welcome, farmers, doctors, and shopkeepers! 👋\nSwipe to begin your journey with us.\nस्वागत है, किसानगण, चिकित्सकगण और दुकानदारगण! 👋\nहमारे साथ अपनी यात्रा प्रारंभ करने के लिए स्वाइप करें।','link':'assets/images/onboard/1.png'},
+    {'msg':'PashuDhan makes it easy to track your health and your animals’ health, while connecting farmers, veterinarians, and shopkeepers effortlessly.\nपशुधन आपके और आपके पशुओं के स्वास्थ्य की सरल निगरानी का साधन है, तथा यह किसानों, पशु चिकित्सकों और दुकानदारों को आपस में सहज रूप से जोड़ता है।','link':'assets/images/onboard/2.png'},
+    {'msg':'As a farmer, always check with a vet before giving any medicine on your animals. If your animal is sick, PashuDhan helps you contact a vet quickly and gives first-aid guidance.\nकिसान भाई, किसी भी दवा देने या सुई लगाने से पहले हमेशा पशु चिकित्सक से पूछें। यदि आपके पशु को बीमारी हो, तो पशुधन से आप जल्दी पशु चिकित्सक से संपर्क कर सकते हैं और प्राथमिक मदद पा सकते हैं।','link':'assets/images/onboard/3.png'},
+    {'msg':'Together, let’s build a future of ethical and sustainable livestock farming.\nआइए, मिलकर नैतिक और टिकाऊ पशुपालन का भविष्य बनाएं।','link':'assets/images/onboard/4.png'},
   ];
 }

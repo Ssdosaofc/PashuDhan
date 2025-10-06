@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pashu_dhan/Presentation/Common/custom_snackbar.dart';
+import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
 
 import '../../../Core/Constants/assets_constants.dart';
 import '../../../Core/Constants/color_constants.dart';
@@ -9,6 +9,7 @@ import '../../../Data/datasource/local/local_datasource.dart';
 import '../../Common/Widgets/info_card.dart';
 import '../../Common/Widgets/primary_button.dart';
 import '../../Common/Widgets/text_box.dart';
+import '../../Common/custom_snackbar.dart';
 import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/auth_bloc/auth_event.dart';
 import '../../bloc/auth_bloc/auth_state.dart';
@@ -176,17 +177,17 @@ class _LoginscreenState extends State<Loginscreen> {
                             ),
                             const SizedBox(height: 25),
                             PrimaryButton(
-                              onPressed: () {
-                                final roleStr = getRoleFromRange(range);
-                                context.read<AuthBloc>().add(
-                                  LoginEvent(
-                                    emailController.text.trim(),
-                                    passwordController.text,
-                                    roleStr,
-                                  ),
-                                );
-                              },
-                              text: "Login",
+                                onPressed: (){
+                                  switch(range){
+                                    case 1:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
+                                        HomeScreen()), (Route<dynamic> route) => false);
+                                    case 2:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
+                                        HomeScreen()), (Route<dynamic> route) => false);
+                                    case 3:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
+                                        VetHomeScreen()), (Route<dynamic> route) => false);
+                                  }
+                                },
+                                text: "Login"
                             ),
                             const SizedBox(height: 15),
                             TextButton(

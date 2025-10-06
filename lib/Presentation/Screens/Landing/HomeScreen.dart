@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'Dashboard/Dashboard.dart';
-import 'Help.dart';
+import 'chat_screen.dart';
 import 'LiveStock.dart';
 import 'Settings.dart';
 
@@ -37,8 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
       Livestock(onBack: () {
         setState(() => _currentIndex = 0);
       }),
+      ChatScreen(onBack: () {
+        setState(() => _currentIndex = 0);
+      }),
       const Settings(),
-      const Help(),
     ];
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -59,14 +61,14 @@ class _HomeScreenState extends State<HomeScreen> {
             selectedColor: Colors.teal,
           ),
           SalomonBottomBarItem(
+            icon: const Icon(Icons.chat),
+            title: const Text("Talk to Vet"),
+            selectedColor: Colors.blue,
+          ),
+          SalomonBottomBarItem(
             icon: const Icon(Icons.settings),
             title: const Text("Settings"),
             selectedColor: Colors.orange,
-          ),
-          SalomonBottomBarItem(
-            icon: const Icon(Icons.help_outline),
-            title: const Text("Help"),
-            selectedColor: Colors.blue,
           ),
         ],
       ),

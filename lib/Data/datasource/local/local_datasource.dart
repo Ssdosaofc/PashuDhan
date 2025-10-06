@@ -1,8 +1,11 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../Core/Constants/strings_constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocalDatasource {
   final FlutterSecureStorage _secureStorage;
+  final sharedPreferences = SharedPreferences.getInstance();
+
 
   LocalDatasource({FlutterSecureStorage? secureStorage})
       : _secureStorage = secureStorage ?? const FlutterSecureStorage();

@@ -2,7 +2,7 @@ class ProductModel {
   final int id;
   final String productName;
   final String quantity;
-  final int livestockId;
+  final String livestockId;
 
   ProductModel({
     required this.id,

@@ -7,7 +7,7 @@ abstract class ProductEvent extends Equatable {
 }
 
 class FetchProducts extends ProductEvent {
-  final int livestockId;
+  final String livestockId;
   const FetchProducts(this.livestockId);
 
   @override
@@ -16,7 +16,7 @@ class FetchProducts extends ProductEvent {
 
 class AddProduct extends ProductEvent {
   final int id;
-  final int livestockId;
+  final String livestockId;
   final String productName;
   final String quantity;
 

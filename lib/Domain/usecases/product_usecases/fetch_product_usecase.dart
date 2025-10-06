@@ -7,7 +7,7 @@ class FetchProductsUseCase {
 
   FetchProductsUseCase(this.repository);
 
-  Future<List<ProductEntity>> call(int livestockId) async {
+  Future<List<ProductEntity>> call(String livestockId) async {
     return await repository.fetchProductsByLivestock(livestockId);
   }
 }

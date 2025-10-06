@@ -6,8 +6,8 @@ abstract class ProductRepository {
     required int id,
     required String productName,
     required String quantity,
-    required int livestockId,
+    required String livestockId,
   });
 
-  Future<List<ProductEntity>> fetchProductsByLivestock(int livestockId);
+  Future<List<ProductEntity>> fetchProductsByLivestock(String livestockId);
 }

@@ -91,7 +91,7 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
                 if (selectedProduct != null && qtyController.text.isNotEmpty) {
                   context.read<ProductBloc>().add(AddProduct(
                     id: widget.animalId.hashCode,
-                    livestockId: widget.animalId.hashCode,
+                    livestockId: widget.animalId,
                     productName: selectedProduct!,
                     quantity: qtyController.text,
                   ));
@@ -116,7 +116,7 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
   void initState() {
     super.initState();
     // Fetch products for this animal
-    context.read<ProductBloc>().add(FetchProducts(widget.animalId.hashCode));
+    context.read<ProductBloc>().add(FetchProducts(widget.animalId));
   }
 
   @override

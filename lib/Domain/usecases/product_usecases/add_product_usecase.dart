@@ -11,7 +11,7 @@ class AddProductUseCase {
     required int id,
     required String productName,
     required String quantity,
-    required int livestockId,
+    required String livestockId,
   }) async {
     return await repository.addProduct(
       id: id,

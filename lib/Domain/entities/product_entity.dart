@@ -3,7 +3,7 @@ class ProductEntity {
   final int id;
   final String productName;
   final String quantity;
-  final int livestockId;
+  final String livestockId;
 
   ProductEntity({
     required this.id,

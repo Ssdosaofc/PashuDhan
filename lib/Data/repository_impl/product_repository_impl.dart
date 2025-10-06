@@ -12,7 +12,7 @@ class ProductRepositoryImpl implements ProductRepository {
     required int id,
     required String productName,
     required String quantity,
-    required int livestockId,
+    required String livestockId,
   }) async {
     final model = await remoteDataSource.addProduct(
       id: id,
@@ -30,7 +30,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<List<ProductEntity>> fetchProductsByLivestock(int livestockId) async {
+  Future<List<ProductEntity>> fetchProductsByLivestock(String livestockId) async {
     final models = await remoteDataSource.fetchProductsByLivestock(livestockId);
     return models
         .map((m) => ProductEntity(

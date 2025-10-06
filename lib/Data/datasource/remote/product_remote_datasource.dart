@@ -12,7 +12,7 @@ class ProductRemoteDataSource {
     required int id,
     required String productName,
     required String quantity,
-    required int livestockId,
+    required String livestockId,
   }) async {
     final response = await client.post(
       Uri.parse('$baseUrl/add'),
@@ -34,7 +34,7 @@ class ProductRemoteDataSource {
     }
   }
 
-  Future<List<ProductModel>> fetchProductsByLivestock(int livestockId) async {
+  Future<List<ProductModel>> fetchProductsByLivestock(String livestockId) async {
     final response = await client.get(
       Uri.parse('$baseUrl/$livestockId'),
       headers: {'Content-Type': 'application/json'},

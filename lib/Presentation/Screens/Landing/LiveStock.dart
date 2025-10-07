@@ -167,7 +167,7 @@ class _LivestockState extends State<Livestock> {
               child: BlocBuilder<AnimalBloc, AnimalState>(
                 builder: (context, state) {
                   if (state is AnimalLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator(color: ColorConstants.c1C5D43,));
                   } else if (state is AnimalFailure) {
                     return Center(child: Text("Error: ${state.error}"));
                   } else if (state is AnimalSuccess) {

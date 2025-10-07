@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pashu_dhan/Presentation/Screens/Landing/Shopkeeper/HomeScreen.dart';
 import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
 
 import '../../../Core/Constants/assets_constants.dart';
@@ -182,7 +183,7 @@ class _LoginscreenState extends State<Loginscreen> {
                                     case 1:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
                                         HomeScreen()), (Route<dynamic> route) => false);
                                     case 2:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        HomeScreen()), (Route<dynamic> route) => false);
+                                        ShopkeeperScreen()), (Route<dynamic> route) => false);
                                     case 3:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
                                         VetHomeScreen()), (Route<dynamic> route) => false);
                                   }

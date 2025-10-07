@@ -1,0 +1,411 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+import '../../../../Core/Constants/assets_constants.dart';
+import '../../../../Core/Constants/color_constants.dart';
+import '../Veterinarian/ChatDetailsPage.dart';
+
+class AiAssistantScreen extends StatefulWidget {
+  const AiAssistantScreen({super.key});
+
+  @override
+  State<AiAssistantScreen> createState() => _AiAssistantScreenState();
+}
+
+class _AiAssistantScreenState extends State<AiAssistantScreen> {
+  final List<Map<String, dynamic>> messages = [
+    {
+      'sender': 'Vet',
+      'text': 'Hello, how can I help you today?',
+      'time': '09:15 AM',
+    }
+  ];
+
+  final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  void _sendMessage() {
+    if (_controller.text.trim().isEmpty) return;
+
+    final userMessage = _controller.text.trim();
+
+    setState(() {
+      messages.add({
+        'sender': 'Farmer',
+        'text': userMessage,
+        'time': _formatCurrentTime(),
+      });
+      _controller.clear();
+    });
+
+    Future.delayed(const Duration(milliseconds: 200), _scrollToBottom);
+
+    _aiResponse(userMessage);
+  }
+
+  void _aiResponse(String userMessage) async {
+    setState(() {
+      messages.add({
+        'sender': 'Vet',
+        'text': 'Typing...',
+        'time': _formatCurrentTime(),
+        'typing': true,
+      });
+    });
+
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() => messages.removeWhere((msg) => msg['typing'] == true));
+
+    final reply = _generateTreatment(userMessage);
+
+    setState(() {
+      messages.add({
+        'sender': 'Vet',
+        'text': reply,
+        'time': _formatCurrentTime(),
+      });
+    });
+
+    Future.delayed(const Duration(milliseconds: 200), _scrollToBottom);
+
+    await Future.delayed(const Duration(seconds: 2));
+    final vetPrescription = {
+      "animal": "Cow",
+      "disease": "Foot and Mouth Disease",
+      "prescription":
+      "Vaccinate with FMD vaccine (0.5 ml, subcutaneous), provide antiseptic mouthwash twice daily, and ensure hydration.",
+    };
+
+    setState(() {
+      messages.add({
+        'sender': 'Vet',
+        'type': 'prescription',
+        'data': vetPrescription,
+        'time': _formatCurrentTime(),
+      });
+    });
+
+    Future.delayed(const Duration(milliseconds: 200), _scrollToBottom);
+  }
+
+  String _generateTreatment(String message) {
+    message = message.toLowerCase();
+
+    if (message.contains('fever') || message.contains('hot')) {
+      return "It seems your animal has a fever. Please provide Paracetamol syrup (5ml twice daily) and keep it hydrated.";
+    } else if (message.contains('cough') || message.contains('cold')) {
+      return "For cough or cold, give warm water and 5ml VetCough syrup twice a day. Keep the animal in a warm place.";
+    } else if (message.contains('injury') || message.contains('wound')) {
+      return "Clean the wound with antiseptic and apply Betadine twice daily. If swelling persists, give Meloxicam injection (1ml/10kg).";
+    } else if (message.contains('diarrhea') || message.contains('loose')) {
+      return "For diarrhea, give oral rehydration solution and Norfloxacin (1 tablet twice daily). Avoid milk for 24 hours.";
+    } else if (message.contains('milk') || message.contains('udder')) {
+      return "It may be mastitis. Use Mastiguard ointment and inject Amoxicillin for 3 days. Consult local vet if it worsens.";
+    } else {
+      final responses = [
+        "Please share more details about symptoms and duration.",
+        "Could you specify the animal’s age and recent feed?",
+        "Try isolating the animal and monitoring temperature for 24 hours.",
+        "Apply basic first aid and ensure clean water access."
+      ];
+      return responses[Random().nextInt(responses.length)];
+    }
+  }
+
+  String _formatCurrentTime() {
+    final now = DateTime.now();
+    final hour = now.hour > 12 ? now.hour - 12 : now.hour;
+    final minute = now.minute.toString().padLeft(2, '0');
+    final period = now.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $period';
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: ColorConstants.cF2F2F2,
+      appBar: AppBar(
+        centerTitle: false,
+        backgroundColor: Colors.green,
+        leading: IconButton(
+          icon: Image.asset(
+            AssetsConstants.left_arrow,
+            width: 24,
+            height: 24,
+            color: Colors.white,
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "AI Vet Assistant",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final msg = messages[index];
+                final isVet = msg['sender'] == 'Vet';
+
+                if (msg['type'] == 'prescription') {
+                  return _buildPrescriptionBubble(msg['data'], msg['time']);
+                }
+
+                return _buildMessageBubble(
+                  text: msg['text'] ?? '',
+                  time: msg['time'] ?? '',
+                  isVet: isVet,
+                );
+              },
+            ),
+          ),
+
+          // 📨 Input Area
+          _buildMessageInput(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageBubble({
+    required String text,
+    required String time,
+    required bool isVet,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        mainAxisAlignment:
+        isVet ? MainAxisAlignment.start : MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (isVet)
+            Container(
+              width: 32,
+              height: 32,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: const BoxDecoration(
+                color: accentBeige,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.smart_toy_outlined),
+            ),
+          Flexible(
+            child: Column(
+              crossAxisAlignment:
+              isVet ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isVet ? Colors.green : farmerBubbleColor,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(16),
+                      topRight: const Radius.circular(16),
+                      bottomLeft: Radius.circular(isVet ? 4 : 16),
+                      bottomRight: Radius.circular(isVet ? 16 : 4),
+                    ),
+                  ),
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: isVet ? Colors.white : textDark,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  time,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: textGrey.withOpacity(0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrescriptionBubble(Map<String, dynamic> data, String time) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, left: 40, right: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.green.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Prescription Summary",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.green,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Table(
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  columnWidths: const {
+                    0: IntrinsicColumnWidth(),
+                    1: FlexColumnWidth(),
+                  },
+                  children: [
+                    TableRow(children: [
+                      _tableCell("Animal"),
+                      _tableValue(data["animal"]),
+                    ]),
+                    TableRow(children: [
+                      _tableCell("Disease"),
+                      _tableValue(data["disease"]),
+                    ]),
+                    TableRow(children: [
+                      _tableCell("Prescription"),
+                      _tableValue(data["prescription"]),
+                    ]),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                          Text("Prescription added to treatment list"),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      "Add to Treatment",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            time,
+            style: TextStyle(
+              fontSize: 11,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tableCell(String text) => Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Text(
+      text,
+      style:
+      const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+    ),
+  );
+
+  Widget _tableValue(String text) => Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Text(text, style: const TextStyle(color: Colors.black87)),
+  );
+
+  // 🧠 Input bar
+  Widget _buildMessageInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.attach_file, color: Colors.green),
+              onPressed: () {},
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: lightBeige.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    hintText: 'Type your message...',
+                    hintStyle: TextStyle(
+                      color: textGrey.withOpacity(0.6),
+                      fontSize: 15,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                  ),
+                  onSubmitted: (_) => _sendMessage(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: const BoxDecoration(
+                color: Colors.green,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                onPressed: _sendMessage,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

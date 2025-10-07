@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import '../../../Core/Constants/color_constants.dart';
-import '../../../Data/models/farmer_model.dart';
-import '../../../Data/models/product_model.dart';
-import 'package:geolocator/geolocator.dart';
+import '../../../../Core/Constants/color_constants.dart';
+import '../../../../Data/models/farmer_model.dart';
 
 class ShopkeeperScreen extends StatefulWidget {
   const ShopkeeperScreen({Key? key}) : super(key: key);

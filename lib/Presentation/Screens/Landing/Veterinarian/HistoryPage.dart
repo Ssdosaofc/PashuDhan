@@ -5,6 +5,41 @@ class HistoryPage extends StatefulWidget {
   State<HistoryPage> createState() => _HistoryPageState();
 }
 
+List<Map<String, String>> history = [
+  {
+    'farmer': 'Farmer Ramesh',
+    'animal': 'Cow',
+    'disease': 'Mastitis',
+    'recommendation': 'Antibiotics, regular cleaning',
+    'date': '2025-09-28',
+    'status': 'Completed',
+  },
+  {
+    'farmer': 'Farmer Sita',
+    'animal': 'Goat',
+    'disease': 'Fever',
+    'recommendation': 'Paracetamol, hydration',
+    'date': '2025-09-25',
+    'status': 'Follow-up',
+  },
+  {
+    'farmer': 'Farmer Mohan',
+    'animal': 'Buffalo',
+    'disease': 'Foot Rot',
+    'recommendation': 'Topical ointment, keep dry',
+    'date': '2025-09-20',
+    'status': 'Completed',
+  },
+  {
+    'farmer': 'Farmer Priya',
+    'animal': 'Cow',
+    'disease': 'Bloat',
+    'recommendation': 'Immediate treatment, diet change',
+    'date': '2025-09-15',
+    'status': 'Completed',
+  },
+];
+
 class _HistoryPageState extends State<HistoryPage> {
   // PashuDhan theme colors
   static const Color primaryGreen = Color(0xFF2D5F4F);
@@ -15,40 +50,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
   String selectedFilter = 'All';
 
-  final List<Map<String, String>> history = [
-    {
-      'farmer': 'Farmer Ramesh',
-      'animal': 'Cow',
-      'disease': 'Mastitis',
-      'recommendation': 'Antibiotics, regular cleaning',
-      'date': '2025-09-28',
-      'status': 'Completed',
-    },
-    {
-      'farmer': 'Farmer Sita',
-      'animal': 'Goat',
-      'disease': 'Fever',
-      'recommendation': 'Paracetamol, hydration',
-      'date': '2025-09-25',
-      'status': 'Follow-up',
-    },
-    {
-      'farmer': 'Farmer Mohan',
-      'animal': 'Buffalo',
-      'disease': 'Foot Rot',
-      'recommendation': 'Topical ointment, keep dry',
-      'date': '2025-09-20',
-      'status': 'Completed',
-    },
-    {
-      'farmer': 'Farmer Priya',
-      'animal': 'Cow',
-      'disease': 'Bloat',
-      'recommendation': 'Immediate treatment, diet change',
-      'date': '2025-09-15',
-      'status': 'Completed',
-    },
-  ];
+
 
   IconData _getAnimalIcon(String animal) {
     switch (animal.toLowerCase()) {
@@ -64,7 +66,16 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Color _getStatusColor(String status) {
-    return status == 'Follow-up' ? Colors.orange : Colors.green;
+    switch(status){
+      case 'Completed':
+        return Colors.green;
+      case 'Pending':
+        return Colors.yellow;
+      case 'Follow-up':
+        return Colors.orange;
+      default:
+        return Colors.orange;
+    }
   }
 
   List<Map<String, String>> get filteredHistory {

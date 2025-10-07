@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:pashu_dhan/Presentation/Common/Widgets/round_button.dart';
+import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/HistoryPage.dart';
+
+import '../../../../Core/Constants/color_constants.dart';
+
+const Color primaryGreen = Color(0xFF2D5F4F);
+const Color lightBeige = Color(0xFFF5E6D3);
+const Color accentBeige = Color(0xFFE8D4B8);
+const Color vetBubbleColor = Color(0xFF3D7A66);
+const Color farmerBubbleColor = Color(0xFFF5E6D3);
+const Color textDark = Color(0xFF2C3E50);
+const Color textGrey = Color(0xFF7F8C8D);
 
 class ChatDetailsPage extends StatefulWidget {
   final String farmerName;
@@ -11,13 +23,6 @@ class ChatDetailsPage extends StatefulWidget {
 
 class _ChatDetailsPageState extends State<ChatDetailsPage> {
   // PashuDhan theme colors
-  static const Color primaryGreen = Color(0xFF2D5F4F);
-  static const Color lightBeige = Color(0xFFF5E6D3);
-  static const Color accentBeige = Color(0xFFE8D4B8);
-  static const Color vetBubbleColor = Color(0xFF3D7A66);
-  static const Color farmerBubbleColor = Color(0xFFF5E6D3);
-  static const Color textDark = Color(0xFF2C3E50);
-  static const Color textGrey = Color(0xFF7F8C8D);
 
   final List<Map<String, dynamic>> messages = [
     {
@@ -42,6 +47,10 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       'time': '09:20 AM',
     },
   ];
+
+  final TextEditingController _animalController = TextEditingController();
+  final TextEditingController _diseaseController = TextEditingController();
+  final TextEditingController _prescriptionController = TextEditingController();
 
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -84,6 +93,316 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     final period = now.hour >= 12 ? 'PM' : 'AM';
     return '$hour:$minute $period';
   }
+
+  void _showAttachmentSheet() {
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: ColorConstants.cF2F2F2,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Attachments",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      RoundButton(icon: Icons.image_outlined, label: "Image", onTap: (){}),
+                      RoundButton(icon: Icons.file_present_outlined, label: "File", onTap: (){}),
+                      RoundButton(icon: Icons.medical_information_outlined, label: "Prescription", onTap: (){
+                        showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              backgroundColor: ColorConstants.cFFFFFF,
+                              title: const Text(
+                                "Add Prescription",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    controller: _animalController,
+                                    decoration: InputDecoration(
+                                      hintText: "Enter animal name",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(color: Colors.black),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12,),
+                                  TextField(
+                                    controller: _diseaseController,
+                                    decoration: InputDecoration(
+                                      hintText: "Enter disease name",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(color: Colors.black),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12,),
+                                  TextField(
+                                    controller: _prescriptionController,
+                                    decoration: InputDecoration(
+                                      hintText: "Prescribe the treatment",
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(color: Colors.black),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12,),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text(
+                                      "Cancel",
+                                      style: TextStyle(color: Colors.black),
+                                    )),
+                                ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: ColorConstants.c1C5D43,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      _addPrescription();
+                                    },
+                                    child: const Text(
+                                      "Prescribe",
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                              ],
+                            ));
+                      }),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _addPrescription() {
+    final animal = _animalController.text.trim();
+    final disease = _diseaseController.text.trim();
+    final recommendation = _prescriptionController.text.trim();
+
+    if (animal.isEmpty || disease.isEmpty || recommendation.isEmpty) return;
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+
+    setState(() {
+      messages.add({
+        'sender': 'Vet',
+        'type': 'prescription',
+        'animal': animal,
+        'disease': disease,
+        'recommendation': recommendation,
+        'time': _formatCurrentTime(),
+      });
+    });
+
+    history.add({
+      'farmer': widget.farmerName,
+      'animal': animal,
+      'disease': disease,
+      'recommendation': recommendation,
+      'date': '2025-09-25',
+      'status': 'Pending',
+    });
+
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  Widget _buildPrescriptionBubble({
+    required String animal,
+    required String disease,
+    required String prescription,
+    required String time,
+    required bool isVet,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, left: 12, right: 12),
+      child: Row(
+        mainAxisAlignment:
+        isVet ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!isVet)
+            Container(
+              width: 32,
+              height: 32,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: const BoxDecoration(
+                color: accentBeige,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.pets, color: primaryGreen, size: 18),
+            ),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: vetBubbleColor, // same as vet side
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: IntrinsicWidth(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Prescription Summary",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Table(
+                      columnWidths: const {
+                        0: IntrinsicColumnWidth(),
+                        1: FlexColumnWidth(),
+                      },
+                      children: [
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4),
+                              child: Text("Animal:",
+                                  style: TextStyle(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(animal,
+                                  style: const TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4),
+                              child: Text("Disease:",
+                                  style: TextStyle(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(disease,
+                                  style: const TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4),
+                              child: Text("Treatment:",
+                                  style: TextStyle(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w500)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 6),
+                              child: Text(prescription,
+                                  style: const TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Text(
+                        time,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -160,17 +479,28 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
               itemBuilder: (context, index) {
                 final msg = messages[index];
                 final isVet = msg['sender'] == 'Vet';
-                final showAvatar =
-                    index == messages.length - 1 ||
+                final type = msg['type'] ?? 'text';
+                final showAvatar = index == messages.length - 1 ||
                     messages[index + 1]['sender'] != msg['sender'];
 
-                return _buildMessageBubble(
-                  text: msg['text']!,
-                  time: msg['time'] ?? '',
-                  isVet: isVet,
-                  showAvatar: showAvatar,
-                );
+                if (type == 'prescription') {
+                  return _buildPrescriptionBubble(
+                    animal: msg['animal'],
+                    disease: msg['disease'],
+                    prescription: msg['recommendation'],
+                    time: msg['time'],
+                    isVet: isVet,
+                  );
+                } else {
+                  return _buildMessageBubble(
+                    text: msg['text'] ?? '',
+                    time: msg['time'] ?? '',
+                    isVet: isVet,
+                    showAvatar: showAvatar,
+                  );
+                }
               },
+
             ),
           ),
 
@@ -192,7 +522,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                 children: [
                   IconButton(
                     icon: Icon(Icons.attach_file, color: primaryGreen),
-                    onPressed: () {},
+                    onPressed: () => _showAttachmentSheet(),
                   ),
                   Expanded(
                     child: Container(
@@ -280,7 +610,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
           ] else if (!isVet) ...[
             const SizedBox(width: 40),
           ],
-
+          if (isVet) const SizedBox(width: 40),
           Flexible(
             child: Column(
               crossAxisAlignment:
@@ -331,9 +661,11 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
             ),
           ),
 
-          if (isVet) const SizedBox(width: 40),
+          // if (isVet) const SizedBox(width: 40),
         ],
       ),
     );
   }
 }
+
+

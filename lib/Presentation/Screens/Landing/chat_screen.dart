@@ -66,7 +66,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin{
         ),
         title: const Text(
           "Talk to Vet",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Column(
@@ -187,7 +191,7 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
     final vetPrescription = {
       "animal": "Cow",
       "disease": "Foot and Mouth Disease",
-      "prescription": "Vaccinate with FMD vaccine (0.5 ml, subcutaneous), provide antiseptic mouthwash twice daily, and ensure hydration.",
+      "prescription": "Vaccinate with FMD vaccine",
       "dosage":"2",
       "when": "After food",
       "duration": "7"
@@ -202,30 +206,6 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
       });
     });
 
-  }
-
-  String _generateTreatment(String message) {
-    message = message.toLowerCase();
-
-    if (message.contains('fever') || message.contains('hot')) {
-      return "It seems your animal has a fever. Please provide Paracetamol syrup (5ml twice daily) and keep it hydrated.";
-    } else if (message.contains('cough') || message.contains('cold')) {
-      return "For cough or cold, give warm water and 5ml VetCough syrup twice a day. Keep the animal in a warm place.";
-    } else if (message.contains('injury') || message.contains('wound')) {
-      return "Clean the wound with antiseptic and apply Betadine twice daily. If swelling persists, give Meloxicam injection (1ml/10kg).";
-    } else if (message.contains('diarrhea') || message.contains('loose')) {
-      return "For diarrhea, give oral rehydration solution and Norfloxacin (1 tablet twice daily). Avoid milk for 24 hours.";
-    } else if (message.contains('milk') || message.contains('udder')) {
-      return "It may be mastitis. Use Mastiguard ointment and inject Amoxicillin for 3 days. Consult local vet if it worsens.";
-    } else {
-      final responses = [
-        "Please share more details about symptoms and duration.",
-        "Could you specify the animal’s age and recent feed?",
-        "Try isolating the animal and monitoring temperature for 24 hours.",
-        "Apply basic first aid and ensure clean water access."
-      ];
-      return responses[Random().nextInt(responses.length)];
-    }
   }
 
   String _formatCurrentTime() {

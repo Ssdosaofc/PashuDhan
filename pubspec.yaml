@@ -63,6 +63,7 @@ dev_dependencies:
   flutter_map:
   latlong2:
   geolocator:
+  url_launcher:
   shared_preferences:
 
 # For information on the generic Dart part of this file, see the

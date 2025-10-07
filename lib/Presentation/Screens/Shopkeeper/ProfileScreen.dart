@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pashu_dhan/Core/Constants/color_constants.dart';
@@ -8,6 +10,7 @@ import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/auth_bloc/auth_event.dart';
 import '../../bloc/auth_bloc/auth_state.dart';
 import '../Auth/LoginScreen.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileShopkeeperPage extends StatefulWidget {
   const ProfileShopkeeperPage({super.key});
@@ -40,16 +43,60 @@ class _ProfilePageState extends State<ProfileShopkeeperPage> {
   @override
   void initState() {
     super.initState();
-    _loadUserRole();
-
+    // _loadUserRole();
+    fetchProfile();
   }
 
-  Future<void> _loadUserRole() async {
-    final role = await localDatasource.getUserRole();
-    setState(() {
-      userRole = role ?? "Unknown";
-    });
+
+
+  Future<void> fetchProfile() async {
+    final localDatasource = LocalDatasource();
+    final token = await localDatasource.getAccessToken();
+
+    if (token == null) {
+      print("⚠️ No token found. User might not be logged in.");
+      return;
+    }
+
+    final url = Uri.parse("http://10.0.2.2:5000/api/auth/profile");
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("✅ Profile fetched: $data");
+        context.read<AuthBloc>().add(ProfileFetched(
+          role: data['role'] ?? "Unknown",
+          name: data['name'] ?? "Guest",
+          phoneNumber: data['phoneNumber'] ?? "",
+        ));
+
+
+
+      } else if (response.statusCode == 401) {
+        print("❌ Unauthorized - token invalid or expired");
+        _performLogout(context);
+      } else {
+        print("❌ Failed to fetch profile: ${response.statusCode} ${response.body}");
+      }
+    } catch (e) {
+      print("⚠️ Error fetching profile: $e");
+    }
   }
+
+  // Future<void> _loadUserRole() async {
+  //   final role = await localDatasource.getUserRole();
+  //   setState(() {
+  //     userRole = role ?? "Unknown";
+  //   });
+  // }
 
   void _editProfile(String currentName, String currentRole, String currentPhone) {
     TextEditingController nameController = TextEditingController(text: currentName);

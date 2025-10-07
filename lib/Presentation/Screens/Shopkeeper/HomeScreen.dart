@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:pashu_dhan/Presentation/Screens/Shopkeeper/ProfileScreen.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../Core/Constants/color_constants.dart';
 import '../../../Data/models/farmer_model.dart';
 import '../../../Data/models/product_model.dart';
-import 'package:geolocator/geolocator.dart';
-
+import '../../Common/custom_snackbar.dart';
+import 'FarmerDetailScreen.dart';
 import '../Landing/Profile/profile.dart';
+import 'ProfileScreen.dart';
 
 class ShopkeeperScreen extends StatefulWidget {
   const ShopkeeperScreen({Key? key}) : super(key: key);
@@ -22,11 +24,33 @@ class _ShopkeeperScreenState extends State<ShopkeeperScreen> {
   int _currentIndex = 0;
 
   late final MapController _mapController = MapController();
-
-
   LatLng _currentCenter = LatLng(28.6139, 77.2090);
   double _currentZoom = 10;
 
+  List<ProductModel> _orders = [];
+
+  List<FarmerModel> farmers = [
+    FarmerModel(
+      name: "Kunal",
+      email: "kunal@gmail.com",
+      phoneNumber: "8445408588",
+      role: 'Farmer',
+      lat: 23.79759,
+      lng: 86.42992,
+      products: [
+        ProductModel(productName: "Milk", quantity: "10L", id: 0, livestockId: ''),
+      ],
+    ),
+    FarmerModel(
+      name: "Ramesh",
+      email: "ramesh@example.com",
+      phoneNumber: "9876543210",
+      lat: 28.6200,
+      role: 'Farmer',
+      lng: 77.2150,
+      products: [],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +73,6 @@ class _ShopkeeperScreenState extends State<ShopkeeperScreen> {
               : _currentIndex == 1
               ? _buildOrdersScreen()
               : ProfileShopkeeperPage(),
-
-
           if (_currentIndex == 0)
             Positioned(
               bottom: 16,
@@ -130,69 +152,86 @@ class _ShopkeeperScreenState extends State<ShopkeeperScreen> {
           "https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=$geoapifyApiKey",
           userAgentPackageName: 'com.example.app',
         ),
-        // MarkerLayer(
-        //   markers: [
-        //     ...farmers.map((farmer) {
-        //       return Marker(
-        //         width: 120,
-        //         height: 80,
-        //         point: LatLng(farmer.lat, farmer.lng),
-        //         child: GestureDetector(
-        //           onTap: () => _showFarmerInfo(farmer),
-        //           child: Column(
-        //             mainAxisSize: MainAxisSize.min,
-        //             children: [
-        //               Container(
-        //                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        //                 decoration: BoxDecoration(
-        //                   color: Colors.white,
-        //                   borderRadius: BorderRadius.circular(8),
-        //                   boxShadow: const [
-        //                     BoxShadow(
-        //                         color: Colors.black26,
-        //                         blurRadius: 4,
-        //                         offset: Offset(0, 2)),
-        //                   ],
-        //                 ),
-        //                 child: Text(
-        //                   farmer.name ?? 'Unknown',
-        //                   style: const TextStyle(
-        //                       fontSize: 12,
-        //                       fontWeight: FontWeight.w600,
-        //                       color: Colors.black87),
-        //                   overflow: TextOverflow.ellipsis,
-        //                 ),
-        //               ),
-        //               const SizedBox(height: 4),
-        //               const Icon(Icons.location_on, color: Colors.red, size: 36),
-        //             ],
-        //           ),
-        //         ),
-        //       );
-        //     }).toList(),
-        //   ],
-        // ),
+        MarkerLayer(
+          markers: farmers
+              .map(
+                (farmer) => Marker(
+              width: 120,
+              height: 80,
+              point: LatLng(farmer.lat, farmer.lng),
+              child: GestureDetector(
+                onTap: () => _showFarmerInfo(farmer),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                        ],
+                      ),
+                      child: Text(
+                        farmer.name ?? 'Unknown',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Icon(Icons.location_on, color: Colors.red, size: 36),
+                  ],
+                ),
+              ),
+            ),
+          )
+              .toList(),
+        ),
       ],
     );
   }
 
   Widget _buildOrdersScreen() {
-    return const Center(
-      child: Text("Orders will appear here", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+    if (_orders.isEmpty) {
+      return const Center(
+        child: Text("No orders yet", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _orders.length,
+      itemBuilder: (context, index) {
+        final order = _orders[index];
+        return Card(
+          color: Colors.white,
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: const Icon(Icons.shopping_basket, color: Colors.green),
+            title: Text(order.productName),
+            subtitle: Text('Quantity: ${order.quantity}'),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                setState(() {
+                  _orders.removeAt(index);
+                });
+                CustomSnackbar.showSnackBar(text: '${order.productName} removed from orders', context: context);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildProfileScreen() {
-    return const Center(
-      child: Text("Profile", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-    );
-  }
 
   void _showFarmerInfo(FarmerModel farmer) {
     final firstProduct = farmer.products.isNotEmpty ? farmer.products.first : null;
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (_) {
         return Padding(
@@ -219,7 +258,19 @@ class _ShopkeeperScreenState extends State<ShopkeeperScreen> {
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: () {
-
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FarmerDetailScreen(
+                        farmer: farmer,
+                        onOrderConfirmed: (product) {
+                          setState(() {
+                            _orders.add(product);
+                          });
+                        },
+                      ),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.arrow_forward, color: Colors.white),
                 label: const Text('View Details', style: TextStyle(color: Colors.white)),

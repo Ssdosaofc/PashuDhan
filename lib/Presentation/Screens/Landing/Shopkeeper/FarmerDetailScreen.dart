@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../Core/Constants/color_constants.dart';
-import '../../../Data/models/farmer_model.dart';
-import '../../../Data/models/product_model.dart';
+import '../../../../Core/Constants/color_constants.dart';
+import '../../../../Data/models/farmer_model.dart';
+import '../../../../Data/models/product_model.dart';
 import 'package:pashu_dhan/Presentation/Common/custom_snackbar.dart';
 
 class FarmerDetailScreen extends StatelessWidget {

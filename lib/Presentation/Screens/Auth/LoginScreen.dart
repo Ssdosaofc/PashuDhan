@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
-import 'package:pashu_dhan/Presentation/Screens/Shopkeeper/HomeScreen.dart';
 import '../../../Core/Constants/assets_constants.dart';
 import '../../../Core/Constants/color_constants.dart';
 import '../../../Data/datasource/local/local_datasource.dart';
@@ -14,6 +13,7 @@ import '../../bloc/auth_bloc/auth_event.dart';
 import '../../bloc/auth_bloc/auth_state.dart';
 import '../Landing/Dashboard/Dashboard.dart';
 import '../Landing/HomeScreen.dart';
+import '../Landing/Shopkeeper/HomeScreen.dart';
 import 'SignUpScreen.dart';
 
 class Loginscreen extends StatefulWidget {

@@ -2,38 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 
-// Domain Repositories
-import 'Domain/repository/product_repository.dart';
+// Datasources
+import 'package:pashu_dhan/Data/datasource/local/local_datasource.dart';
+import 'package:pashu_dhan/Data/datasource/remote/auth_remote_datasource.dart';
+import 'package:pashu_dhan/Data/datasource/remote/animal_remote_datasource.dart';
+import 'package:pashu_dhan/Data/datasource/remote/product_remote_datasource.dart';
+import 'package:pashu_dhan/Data/datasource/remote/treatment_remote_datasource.dart';
 
-// Data Repositories & Datasources
-import 'Data/datasource/local/local_datasource.dart';
-import 'Data/datasource/remote/auth_remote_datasource.dart';
-import 'Data/datasource/remote/animal_remote_datasource.dart';
-import 'Data/datasource/remote/product_remote_datasource.dart';
-import 'Data/repository_impl/auth_repository_impl.dart';
-import 'Data/repository_impl/animal_repository_impl.dart';
-import 'Data/repository_impl/product_repository_impl.dart';
+// Repository Implementations
+import 'package:pashu_dhan/Data/repository_impl/auth_repository_impl.dart';
+import 'package:pashu_dhan/Data/repository_impl/animal_repository_impl.dart';
+import 'package:pashu_dhan/Data/repository_impl/product_repository_impl.dart';
+import 'package:pashu_dhan/Data/repository_impl/treatment_repository_impl.dart';
+
 
 // Usecases
-import 'Domain/usecases/animal_usecases/get_animal_by_id_usecase.dart';
-import 'Domain/usecases/auth_usecase/signup_usecase.dart';
-import 'Domain/usecases/auth_usecase/login_usecase.dart';
-import 'Domain/usecases/auth_usecase/logout_usecase.dart';
-import 'Domain/usecases/auth_usecase/update_profile_usecase.dart';
-import 'Domain/usecases/animal_usecases/get_animal_usecase.dart';
-import 'Domain/usecases/animal_usecases/add_animal_usecase.dart';
-import 'Domain/usecases/animal_usecases/delete_animal_usecase.dart';
-import 'Domain/usecases/product_usecases/add_product_usecase.dart';
-import 'Domain/usecases/product_usecases/fetch_product_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/auth_usecase/signup_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/auth_usecase/login_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/auth_usecase/logout_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/auth_usecase/update_profile_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/animal_usecases/get_animal_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/animal_usecases/add_animal_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/animal_usecases/delete_animal_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/animal_usecases/get_animal_by_id_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/product_usecases/add_product_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/product_usecases/fetch_product_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/treatment_usecase/add_treatment_usecase.dart';
+import 'package:pashu_dhan/Domain/usecases/treatment_usecase/get_treatment_usecase.dart';
+
 
 // Presentation
-import 'Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
-import 'Presentation/Screens/Shopkeeper/HomeScreen.dart';
-import 'Presentation/bloc/auth_bloc/auth_bloc.dart';
-import 'Presentation/bloc/animal_bloc/animal_bloc.dart';
-import 'Presentation/bloc/product_bloc/product_bloc.dart';
-import 'Presentation/Screens/Landing/HomeScreen.dart';
-import 'Presentation/Screens/Auth/LoginScreen.dart';
+import 'package:pashu_dhan/Presentation/bloc/auth_bloc/auth_bloc.dart';
+import 'package:pashu_dhan/Presentation/bloc/animal_bloc/animal_bloc.dart';
+import 'package:pashu_dhan/Presentation/bloc/product_bloc/product_bloc.dart';
+import 'package:pashu_dhan/Presentation/bloc/treatment_bloc/treatment_bloc.dart';
+import 'package:pashu_dhan/Presentation/Screens/Landing/HomeScreen.dart';
+import 'package:pashu_dhan/Presentation/Screens/Landing/Shopkeeper/HomeScreen.dart' as shopkeeper;
+import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
+import 'package:pashu_dhan/Presentation/Screens/Auth/LoginScreen.dart';
+// CORRECT (absolute import)
+import 'package:pashu_dhan/Domain/repository/treatment_repository.dart';
+
+import 'Domain/usecases/treatment_usecase/get_all_treatment_usecase.dart';
+
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,11 +71,15 @@ class MyApp extends StatelessWidget {
     final authRemoteDS = AuthRemoteDataSource(http.Client());
     final animalRemoteDS = AnimalRemoteDataSource(http.Client(), LocalDatasource());
     final productRemoteDS = ProductRemoteDataSource(http.Client());
+    final treatmentRemoteDS = TreatmentRemoteDatasource(http.Client(), LocalDatasource());
 
     // --- Repositories ---
     final authRepo = AuthRepositoryImpl(authRemoteDS, LocalDatasource());
     final animalRepo = AnimalRepositoryImpl(animalRemoteDS);
     final productRepo = ProductRepositoryImpl(productRemoteDS);
+    final TreatmentRepository treatmentRepo = TreatmentRepositoryImpl(treatmentRemoteDS,
+    );
+
 
     // --- Usecases ---
     final signupUseCase = SignupUseCase(authRepo);
@@ -96,9 +112,16 @@ class MyApp extends StatelessWidget {
           ),
         ),
         BlocProvider<ProductBloc>(
-          create: (context) => ProductBloc(
+          create: (_) => ProductBloc(
             addProductUseCase: AddProductUseCase(productRepo),
             fetchProductsUseCase: FetchProductsUseCase(productRepo),
+          ),
+        ),
+        BlocProvider<TreatmentBloc>(
+          create: (_) => TreatmentBloc(
+            getTreatmentUseCase: GetTreatmentsByAnimalUseCase(treatmentRepo ),
+            addTreatmentUseCase: AddTreatmentUseCase(treatmentRepo ),
+            getAllTreatmentUseCase: GetAllTreatmentsUseCase(treatmentRepo),
           ),
         ),
       ],
@@ -119,7 +142,7 @@ class MyApp extends StatelessWidget {
       case 'Farmer':
         return HomeScreen();
       case 'Shopkeeper':
-        return ShopkeeperScreen();
+        return shopkeeper.ShopkeeperScreen();
       case 'Veterinarian':
         return VetHomeScreen();
       default:
@@ -127,4 +150,3 @@ class MyApp extends StatelessWidget {
     }
   }
 }
-

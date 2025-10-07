@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +18,7 @@ import '../../../bloc/auth_bloc/auth_event.dart';
 import '../../../bloc/auth_bloc/auth_state.dart';
 import '../LiveStock.dart';
 import '../Profile/profile.dart';
+import 'package:http/http.dart' as http;
 
 class Dashboard extends StatefulWidget {
   final VoidCallback? goToLivestock;
@@ -26,19 +29,62 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-
+  late var farName="Guest";
 
   @override
   void initState() {
     super.initState();
     context.read<AnimalBloc>().add(GetAnimalsEvent());
     printToken();
+    fetchProfile();
   }
 
   void printToken() async {
     final localDatasource = LocalDatasource();
     final token = await localDatasource.getAccessToken();
     print("Tokeeeen: $token");
+  }
+
+  Future<void> fetchProfile() async {
+    final localDatasource = LocalDatasource();
+    final token = await localDatasource.getAccessToken();
+
+    if (token == null) {
+      print("⚠️ No token found. User might not be logged in.");
+      return;
+    }
+
+    final url = Uri.parse("http://10.0.2.2:5000/api/auth/profile");
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("✅ Profile fetched: $data");
+        farName=data['name'];
+        context.read<AuthBloc>().add(ProfileFetched(
+          role: data['role'] ?? "Unknown",
+          name: data['name'] ?? "Guest",
+          phoneNumber: data['phoneNumber'] ?? "",
+        ));
+
+
+
+      } else if (response.statusCode == 401) {
+        print("❌ Unauthorized - token invalid or expired");
+      } else {
+        print("❌ Failed to fetch profile: ${response.statusCode} ${response.body}");
+      }
+    } catch (e) {
+      print("⚠️ Error fetching profile: $e");
+    }
   }
 
 
@@ -289,12 +335,12 @@ class _DashboardState extends State<Dashboard> {
                 const SizedBox(height: 16),
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
-                    String name = "Guest";
+                    String user = "Guest";
                     if (state is UpdateProfileSuccess) {
-                      name = state.user.name ?? "Guest";
+                      user = state.user.name ?? "Guest";
                     }
                     return Text(
-                      "Welcome back, $name!",
+                      "Welcome back, $farName!",
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,

@@ -2,10 +2,17 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pashu_dhan/Presentation/Common/Widgets/primary_button.dart';
 
 import '../../../Core/Constants/assets_constants.dart';
 import '../../../Core/Constants/color_constants.dart';
+import '../../../Domain/entities/treatment_entity.dart';
+import '../../bloc/animal_bloc/animal_bloc.dart';
+import '../../bloc/animal_bloc/animal_event.dart';
+import '../../bloc/animal_bloc/animal_state.dart';
+import '../../bloc/treatment_bloc/treatment_bloc.dart';
+import '../../bloc/treatment_bloc/treatment_event.dart';
 import 'Farmer Chat/ai_assistant_screen.dart';
 import 'Farmer Chat/farmer_history_screen.dart';
 import 'Veterinarian/ChatDetailsPage.dart';
@@ -187,7 +194,7 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
     final vetPrescription = {
       "animal": "Cow",
       "disease": "Foot and Mouth Disease",
-      "prescription": "Vaccinate with FMD vaccine (0.5 ml, subcutaneous), provide antiseptic mouthwash twice daily, and ensure hydration.",
+      "prescription": "Vaccinate with FMD vaccine.",
       "dosage":"2",
       "when": "After food",
       "duration": "7"
@@ -527,11 +534,11 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Prescription added to treatment list"),
-                        ),
-                      );
+                      print(data);
+                      context
+                          .read<AnimalBloc>()
+                          .add(FetchAnimalIdsByNameEvent(data["animal"]));
+                      _showAnimalBottomSheet(context,data);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorConstants.c1C5D43,
@@ -563,6 +570,86 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
       ),
     );
   }
+
+  void _showAnimalBottomSheet(BuildContext context, Map<String, dynamic> data) {
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return BlocBuilder<AnimalBloc, AnimalState>(
+          builder: (context, state) {
+            if (state is AnimalIdsLoading) {
+              return const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()));
+            } else if (state is AnimalIdsLoaded) {
+              final ids = state.ids;
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Select ${data["animal"]} ID",
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: ids.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          tileColor: Colors.white,
+                          title: Text("Animal ID: ${ids[index]}"),
+                          leading: const Icon(Icons.pets, color: Colors.green),
+                          onTap: () {
+                            context.read<TreatmentBloc>().add(AddTreatmentEvent(
+                              TreatmentEntity(
+                                treatmentId:ids[index],
+                                animal: data["animal"],
+                              disease: data["disease"],
+                              prescription: data["prescription"],
+                              dosage: data["dosage"],
+                              when: data["when"],
+                              duration: data["duration"]
+                              )
+                            ));
+                            Navigator.pop(context);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Treatment added for Animal ID: ${ids[index]}"),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            } else if (state is AnimalIdsError) {
+              return SizedBox(
+                height: 200,
+                child: Center(
+                  child: Text(
+                    state.message,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox(height: 200);
+          },
+        );
+      },
+    );
+  }
+
 
   Widget _tableCell(String text) => Padding(
     padding: const EdgeInsets.all(8.0),

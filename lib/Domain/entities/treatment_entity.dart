@@ -1,9 +1,20 @@
 
-class Treatment {
-  final String date;
-  final String drugName;
+class TreatmentEntity {
+  final String treatmentId;
+  final String animal;
+  final String disease;
+  final String prescription;
   final String dosage;
-  final String reason;
+  final String when;
+  final String duration;
 
-  Treatment({required this.date, required this.drugName, required this.dosage, required this.reason});
+  TreatmentEntity({
+    required this.treatmentId,
+    required this.animal,
+    required this.disease,
+    required this.prescription,
+    required this.dosage,
+    required this.when,
+    required this.duration,
+  });
 }

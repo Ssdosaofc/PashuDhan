@@ -4,12 +4,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../Core/Constants/color_constants.dart';
-import '../../../Data/models/farmer_model.dart';
-import '../../../Data/models/product_model.dart';
-import '../../Common/custom_snackbar.dart';
+import '../../../../Core/Constants/color_constants.dart';
+import '../../../../Data/models/farmer_model.dart';
+import '../../../../Data/models/product_model.dart';
+import '../../../Common/custom_snackbar.dart';
+import '../../Shopkeeper/ProfileScreen.dart';
 import 'FarmerDetailScreen.dart';
-import '../Landing/Profile/profile.dart';
 import 'ProfileScreen.dart';
 
 class ShopkeeperScreen extends StatefulWidget {

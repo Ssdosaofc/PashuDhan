@@ -1,8 +1,11 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../Core/Constants/assets_constants.dart';
 import '../../../../Core/Constants/color_constants.dart';
+import '../../../bloc/animal_bloc/animal_bloc.dart';
+import '../../../bloc/animal_bloc/animal_event.dart';
+import '../../../bloc/animal_bloc/animal_state.dart';
 import '../Veterinarian/ChatDetailsPage.dart';
 
 class AiAssistantScreen extends StatefulWidget {
@@ -28,7 +31,6 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     if (_controller.text.trim().isEmpty) return;
 
     final userMessage = _controller.text.trim();
-
     setState(() {
       messages.add({
         'sender': 'Farmer',
@@ -39,7 +41,6 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 200), _scrollToBottom);
-
     _aiResponse(userMessage);
   }
 
@@ -56,8 +57,8 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     await Future.delayed(const Duration(seconds: 2));
     setState(() => messages.removeWhere((msg) => msg['typing'] == true));
 
-    final reply = "Reading your current symptoms, this the recommendation for the next few days";
-
+    final reply =
+        "Reading your current symptoms, here is the recommendation for the next few days:";
     setState(() {
       messages.add({
         'sender': 'Vet',
@@ -150,8 +151,6 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
               },
             ),
           ),
-
-          // 📨 Input Area
           _buildMessageInput(),
         ],
       ),
@@ -274,12 +273,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                          Text("Prescription added to treatment list"),
-                        ),
-                      );
+                      print(data["animal"]);
+                      context
+                          .read<AnimalBloc>()
+                          .add(FetchAnimalIdsByNameEvent(data["animal"]));
+                      _showAnimalBottomSheet(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -309,12 +307,76 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     );
   }
 
+  void _showAnimalBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return BlocBuilder<AnimalBloc, AnimalState>(
+          builder: (context, state) {
+            if (state is AnimalIdsLoading) {
+              return const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()));
+            } else if (state is AnimalIdsLoaded) {
+              final ids = state.ids;
+              return Padding(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      "Select Animal ID",
+                      style:
+                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: ids.length,
+                      itemBuilder: (context, index) {
+                        print(ids[index]);
+                        return ListTile(
+                          title: Text("Animal ID: ${ids[index]}"),
+                          leading: const Icon(Icons.pets, color: Colors.green),
+                          onTap: () {
+                            Navigator.pop(context);
+
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            } else if (state is AnimalIdsError) {
+              return SizedBox(
+                height: 200,
+                child: Center(
+                  child: Text(
+                    state.message,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox(height: 200);
+          },
+        );
+      },
+    );
+  }
+
   Widget _tableCell(String text) => Padding(
     padding: const EdgeInsets.all(8.0),
     child: Text(
       text,
-      style:
-      const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+      style: const TextStyle(
+          fontWeight: FontWeight.bold, color: Colors.black),
     ),
   );
 
@@ -323,7 +385,6 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     child: Text(text, style: const TextStyle(color: Colors.black87)),
   );
 
-  // 🧠 Input bar
   Widget _buildMessageInput() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

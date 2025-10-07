@@ -164,7 +164,7 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
       messages.removeWhere((msg) => msg['typing'] == true);
     });
 
-    final reply = _generateTreatment(userMessage);
+    final reply = "Reading your current symptoms, this the recommendation";
 
     setState(() {
       messages.add({
@@ -188,6 +188,9 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
       "animal": "Cow",
       "disease": "Foot and Mouth Disease",
       "prescription": "Vaccinate with FMD vaccine (0.5 ml, subcutaneous), provide antiseptic mouthwash twice daily, and ensure hydration.",
+      "dosage":"2",
+      "when": "After food",
+      "duration": "7"
     };
 
     setState(() {
@@ -504,6 +507,18 @@ class _FarmerChatScreenState extends State<FarmerChatScreen> {
                     TableRow(children: [
                       _tableCell("Prescription"),
                       _tableValue(data["prescription"]),
+                    ]),
+                    TableRow(children: [
+                      _tableCell("Dosage"),
+                      _tableValue(data["dosage"]+' times in a day'),
+                    ]),
+                    TableRow(children: [
+                      _tableCell("When"),
+                      _tableValue(data["when"]),
+                    ]),
+                    TableRow(children: [
+                      _tableCell("Duration"),
+                      _tableValue(data["duration"]+' days'),
                     ]),
                   ],
                 ),

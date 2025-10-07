@@ -56,7 +56,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     await Future.delayed(const Duration(seconds: 2));
     setState(() => messages.removeWhere((msg) => msg['typing'] == true));
 
-    final reply = _generateTreatment(userMessage);
+    final reply = "Reading your current symptoms, this the recommendation for the next few days";
 
     setState(() {
       messages.add({
@@ -86,30 +86,6 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     });
 
     Future.delayed(const Duration(milliseconds: 200), _scrollToBottom);
-  }
-
-  String _generateTreatment(String message) {
-    message = message.toLowerCase();
-
-    if (message.contains('fever') || message.contains('hot')) {
-      return "It seems your animal has a fever. Please provide Paracetamol syrup (5ml twice daily) and keep it hydrated.";
-    } else if (message.contains('cough') || message.contains('cold')) {
-      return "For cough or cold, give warm water and 5ml VetCough syrup twice a day. Keep the animal in a warm place.";
-    } else if (message.contains('injury') || message.contains('wound')) {
-      return "Clean the wound with antiseptic and apply Betadine twice daily. If swelling persists, give Meloxicam injection (1ml/10kg).";
-    } else if (message.contains('diarrhea') || message.contains('loose')) {
-      return "For diarrhea, give oral rehydration solution and Norfloxacin (1 tablet twice daily). Avoid milk for 24 hours.";
-    } else if (message.contains('milk') || message.contains('udder')) {
-      return "It may be mastitis. Use Mastiguard ointment and inject Amoxicillin for 3 days. Consult local vet if it worsens.";
-    } else {
-      final responses = [
-        "Please share more details about symptoms and duration.",
-        "Could you specify the animal’s age and recent feed?",
-        "Try isolating the animal and monitoring temperature for 24 hours.",
-        "Apply basic first aid and ensure clean water access."
-      ];
-      return responses[Random().nextInt(responses.length)];
-    }
   }
 
   String _formatCurrentTime() {

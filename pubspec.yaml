@@ -38,6 +38,7 @@ dependencies:
   dio:
   get_it:
   talker_dio_logger:
+  flutter_bloc:
 
 dev_dependencies:
   flutter_test:
@@ -53,6 +54,16 @@ dev_dependencies:
   intl:
   flutter_svg:
   google_fonts:
+  flutter_bloc:
+  http:
+  equatable:
+  flutter_secure_storage:
+  dartz:
+  google_maps_flutter:
+  flutter_map:
+  latlong2:
+  geolocator:
+  shared_preferences:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

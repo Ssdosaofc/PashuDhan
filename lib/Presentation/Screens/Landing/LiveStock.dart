@@ -1,7 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pashu_dhan/Presentation/Common/custom_snackbar.dart';
 import '../../../Core/Constants/assets_constants.dart';
 import '../../../Core/Constants/color_constants.dart';
+import '../../../Presentation/bloc/animal_bloc/animal_bloc.dart';
+import '../../../Presentation/bloc/animal_bloc/animal_event.dart';
+import '../../../Presentation/bloc/animal_bloc/animal_state.dart';
+import '../../Common/Widgets/livestock_card.dart';
 import 'Dashboard/animal_dashboard.dart';
 
 class Livestock extends StatefulWidget {
@@ -13,52 +19,44 @@ class Livestock extends StatefulWidget {
 }
 
 class _LivestockState extends State<Livestock> {
-  final List<String> _livestockList = [
-    'Cow - A001',
-    'Cow - A002',
-    'Goat - B101',
-    'Sheep - C305',
-    'Hen - A003',
-    'Goat - B102',
-    'Sheep - C306',
-    'Buffalo - A001',
-    'Duck - A002',
-    'Horse - B101',
-    'Sheep - C305',
-    'Cow - A003',
-    'Goat - B102',
-    'Camel - C306',
-  ];
-
-  List<String> _filteredList = [];
+  String _searchQuery = "";
   String _selectedSort = "NewToOld";
 
   @override
   void initState() {
     super.initState();
-    _filteredList = List.from(_livestockList);
-    // _applySorting();
+    context.read<AnimalBloc>().add(GetAnimalsEvent());
   }
 
   void _filterLivestock(String query) {
     setState(() {
-      if (query.isEmpty) {
-        _filteredList = List.from(_livestockList);
-      } else {
-        _filteredList = _livestockList
-            .where((item) =>
-            item.toLowerCase().contains(query.toLowerCase().trim()))
-            .toList();
-      }
-      _applySorting();
+      _searchQuery = query;
     });
   }
 
-  void _applySorting() {
+  void _changeSort(String sort) {
+    setState(() {
+      _selectedSort = sort;
+    });
+  }
+
+  String _getImageForAnimal(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('cow')) return AssetsConstants.cow;
+    if (lower.contains('goat')) return AssetsConstants.goat;
+    if (lower.contains('sheep')) return AssetsConstants.sheeps;
+    if (lower.contains('duck')) return AssetsConstants.duck;
+    if (lower.contains('camel')) return AssetsConstants.camel;
+    if (lower.contains('horse')) return AssetsConstants.horse;
+    if (lower.contains('hen')) return AssetsConstants.hen;
+    return AssetsConstants.female_buffalo;
+  }
+
+  List<dynamic> _applySorting(List<dynamic> animals) {
     if (_selectedSort == "NewToOld") {
-      _filteredList = _filteredList.reversed.toList();
-    } else if (_selectedSort == "OldToNew") {
-      _filteredList = _filteredList.reversed.toList();
+      return animals.reversed.toList();
+    } else {
+      return animals;
     }
   }
 
@@ -76,9 +74,7 @@ class _LivestockState extends State<Livestock> {
             color: Colors.white,
           ),
           onPressed: () {
-            if (widget.onBack != null) {
-              widget.onBack!();
-            }
+            widget.onBack?.call();
           },
         ),
         title: const Text(
@@ -106,7 +102,7 @@ class _LivestockState extends State<Livestock> {
             ),
           ),
 
-
+          // Sorting chips
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
@@ -115,7 +111,9 @@ class _LivestockState extends State<Livestock> {
                   label: Text(
                     "New to Old",
                     style: TextStyle(
-                      color: _selectedSort == "NewToOld" ? Colors.white : Colors.black,
+                      color: _selectedSort == "NewToOld"
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ),
                   selected: _selectedSort == "NewToOld",
@@ -123,24 +121,18 @@ class _LivestockState extends State<Livestock> {
                   checkmarkColor: Colors.white,
                   backgroundColor: Colors.white,
                   shape: StadiumBorder(
-                    side: BorderSide(
-                      color: Colors.black,
-                      width: 1,
-                    ),
+                    side: BorderSide(color: Colors.black, width: 1),
                   ),
-                  onSelected: (bool selected) {
-                    setState(() {
-                      _selectedSort = "NewToOld";
-                      _applySorting();
-                    });
-                  },
+                  onSelected: (selected) => _changeSort("NewToOld"),
                 ),
                 const SizedBox(width: 10),
                 ChoiceChip(
                   label: Text(
                     "Old to New",
                     style: TextStyle(
-                      color: _selectedSort == "OldToNew" ? Colors.white : Colors.black,
+                      color: _selectedSort == "OldToNew"
+                          ? Colors.white
+                          : Colors.black,
                     ),
                   ),
                   selected: _selectedSort == "OldToNew",
@@ -148,17 +140,9 @@ class _LivestockState extends State<Livestock> {
                   checkmarkColor: Colors.white,
                   backgroundColor: Colors.white,
                   shape: StadiumBorder(
-                    side: BorderSide(
-                      color: Colors.black,
-                      width: 1,
-                    ),
+                    side: BorderSide(color: Colors.black, width: 1),
                   ),
-                  onSelected: (bool selected) {
-                    setState(() {
-                      _selectedSort = "OldToNew";
-                      _applySorting();
-                    });
-                  },
+                  onSelected: (selected) => _changeSort("OldToNew"),
                 ),
               ],
             ),
@@ -166,103 +150,103 @@ class _LivestockState extends State<Livestock> {
 
           const SizedBox(height: 10),
 
-
           Expanded(
-            child: _filteredList.isEmpty
-                ? const Center(
-              child: Text("No livestock found"),
-            )
-                : ListView.builder(
-              itemCount: _filteredList.length,
-              itemBuilder: (context, index) {
-                final item = _filteredList[index];
-
-                String imageAsset;
-                if (item.toLowerCase().contains('cow')) {
-                  imageAsset = AssetsConstants.cow;
-                } else if (item.toLowerCase().contains('goat')) {
-                  imageAsset = AssetsConstants.goat;
-                } else if (item.toLowerCase().contains('sheep')) {
-                  imageAsset = AssetsConstants.sheeps;
-                } else if (item.toLowerCase().contains('duck')) {
-                  imageAsset = AssetsConstants.duck;
-                } else if (item.toLowerCase().contains('camel')) {
-                  imageAsset = AssetsConstants.camel;
-                } else if (item.toLowerCase().contains('horse')) {
-                  imageAsset = AssetsConstants.horse;
-                } else if (item.toLowerCase().contains('hen')) {
-                  imageAsset = AssetsConstants.hen;
-                } else {
-                  imageAsset = AssetsConstants.female_buffalo;
+            child: BlocListener<AnimalBloc, AnimalState>(
+              listener: (context, state) {
+                if (state is AnimalSuccess && state.lastAction==AnimalAction.delete) {
+                  CustomSnackbar.showSnackBar(text: "Deleted successfully", context: context);
+                } else if (state is AnimalFailure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Error: ${state.error}"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
                 }
-
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AnimalDetailScreen(
-                          animalId: item,
-                          imageAsset: imageAsset,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    color: Colors.white,
-                    elevation: 4,
-                    shadowColor: Colors.black26,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(
-                              imageAsset,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  "Healthy | ID #${index + 1001}",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.arrow_forward_ios,
-                              size: 18, color: Colors.grey[400]),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
               },
+              child: BlocBuilder<AnimalBloc, AnimalState>(
+                builder: (context, state) {
+                  if (state is AnimalLoading) {
+                    return const Center(child: CircularProgressIndicator(color: ColorConstants.c1C5D43,));
+                  } else if (state is AnimalFailure) {
+                    return Center(child: Text("Error: ${state.error}"));
+                  } else if (state is AnimalSuccess) {
+                    List animals = state.animals ?? [];
+                    if (_searchQuery.isNotEmpty) {
+                      animals = animals
+                          .where((a) => a.name
+                          .toLowerCase()
+                          .contains(_searchQuery.toLowerCase()))
+                          .toList();
+                    }
+                    animals = _applySorting(animals);
+
+                    if (animals.isEmpty) {
+                      return const Center(child: Text("No livestock found"));
+                    }
+
+                    return ListView.builder(
+                      itemCount: animals.length,
+                      itemBuilder: (context, index) {
+                        final animal = animals[index];
+
+                        return LivestockCard(
+                          animal: animal,
+                          onDelete: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                backgroundColor: ColorConstants.cFFFFFF,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                title: const Text(
+                                  "Delete Animal?",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                content: Text("Are you sure you want to delete ${animal.name}?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text("Cancel", style: TextStyle(color: ColorConstants.c000000)),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text("Delete", style: TextStyle(color: Colors.white)),
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm ?? false) {
+                              context.read<AnimalBloc>().add(DeleteAnimalEvent(animalId: animal.id));
+                            }
+                          },
+                          onTap: () {
+                            final imageAsset = _getImageForAnimal(animal.name);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AnimalDetailScreen(
+                                  animalId: animal.id,
+                                  imageAsset: imageAsset,
+                                  animal: animal,),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             ),
-          )
+          ),
         ],
       ),
     );

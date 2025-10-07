@@ -42,7 +42,7 @@ class AnimalRemoteDataSource {
     );
 
     print("Status code: ${response.statusCode}");
-    print("Body: ${response.body}");
+    print("Body login: ${response.body}");
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final animals = (data['animals'] as List)
@@ -67,6 +67,29 @@ class AnimalRemoteDataSource {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to delete animal');
+    }
+  }
+
+  Future<List<String>> fetchAnimalIdsByName(String name) async {
+    final token = await localDatasource.getAccessToken();
+    if (token == null) throw Exception('No token found. Please login.');
+
+    final url = Uri.parse('http://10.0.2.2:5000/api/animal/ids-by-name/$name');
+    final response = await client.get(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    });
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> idsDynamic = data['animalIds'] ?? [];
+      final ids = idsDynamic.map((e) => e.toString()).toList();
+      return ids;
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized. Please login again.');
+    } else {
+      final body = response.body;
+      throw Exception('Failed to fetch animal IDs: ${response.statusCode} $body');
     }
   }
 

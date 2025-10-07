@@ -13,6 +13,7 @@ import '../../bloc/auth_bloc/auth_event.dart';
 import '../../bloc/auth_bloc/auth_state.dart';
 import '../Landing/Dashboard/Dashboard.dart';
 import 'LoginScreen.dart';
+import 'package:geolocator/geolocator.dart';
 
 class Signupscreen extends StatefulWidget {
   const Signupscreen({super.key});
@@ -21,13 +22,49 @@ class Signupscreen extends StatefulWidget {
   State<Signupscreen> createState() => _SignupscreenState();
 }
 
+
 class _SignupscreenState extends State<Signupscreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-  TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   int range = 1;
+  double? latitude;
+  double? longitude;
+
+  @override
+  void initState() {
+    super.initState();
+    _determinePosition();
+  }
+
+  Future<void> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied.');
+    }
+
+    final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      latitude = position.latitude;
+      longitude = position.longitude;
+    });
+  }
 
   String getRoleFromRange(int range) {
     switch (range) {
@@ -40,6 +77,26 @@ class _SignupscreenState extends State<Signupscreen> {
       default:
         return 'Farmer';
     }
+  }
+
+  void _signup() {
+    if (latitude == null || longitude == null) {
+      CustomSnackbar.showSnackBar(text: 'Could not get location. Please wait or check location settings.', context: context);
+      _determinePosition();
+      return;
+    }
+
+    final roleStr = getRoleFromRange(range);
+    context.read<AuthBloc>().add(
+      SignupEvent(
+        emailController.text.trim(),
+        passwordController.text,
+        confirmPasswordController.text,
+        roleStr,
+        latitude!,
+        longitude!,
+      ),
+    );
   }
 
   @override
@@ -184,15 +241,7 @@ class _SignupscreenState extends State<Signupscreen> {
                             const SizedBox(height: 25),
                             PrimaryButton(
                               onPressed: () {
-                                final roleStr = getRoleFromRange(range);
-                                context.read<AuthBloc>().add(
-                                  SignupEvent(
-                                    emailController.text.trim(),
-                                    passwordController.text,
-                                    confirmPasswordController.text,
-                                    roleStr,
-                                  ),
-                                );
+                                _signup();
                               },
                               text: "Sign Up",
                             ),

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pashu_dhan/Domain/usecases/animal_usecases/get_animal_by_id_usecase.dart';
 import '../../../Domain/entities/animal_entity.dart';
 import '../../../Domain/usecases/animal_usecases/add_animal_usecase.dart';
 import '../../../Domain/usecases/animal_usecases/get_animal_usecase.dart';
@@ -10,15 +11,18 @@ class AnimalBloc extends Bloc<AnimalEvent, AnimalState> {
   final GetAnimalsUseCase getAnimalsUseCase;
   final AddAnimalUseCase addAnimalUseCase;
   final DeleteAnimalUseCase deleteAnimalUseCase;
+  final GetAnimalIdsByNameUseCase getIdsUseCase;
 
   AnimalBloc({
     required this.getAnimalsUseCase,
     required this.addAnimalUseCase,
     required this.deleteAnimalUseCase,
+    required this.getIdsUseCase
   }) : super(AnimalInitial()) {
     on<GetAnimalsEvent>(_onGetAnimals);
     on<AddAnimalEvent>(_onAddAnimal);
     on<DeleteAnimalEvent>(_onDeleteAnimal);
+    on<FetchAnimalIdsByNameEvent>(_onFetch);
   }
 
   Future<void> _onGetAnimals(GetAnimalsEvent event, Emitter<AnimalState> emit) async {
@@ -77,6 +81,16 @@ class AnimalBloc extends Bloc<AnimalEvent, AnimalState> {
       ));
     } catch (e) {
       emit(AnimalFailure(e.toString()));
+    }
+  }
+
+  Future<void> _onFetch(FetchAnimalIdsByNameEvent event, Emitter<AnimalState> emit) async {
+    emit(AnimalIdsLoading());
+    try {
+      final ids = await getIdsUseCase(event.name);
+      emit(AnimalIdsLoaded(ids));
+    } catch (e) {
+      emit(AnimalIdsError(e.toString()));
     }
   }
 }

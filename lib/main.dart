@@ -15,6 +15,7 @@ import 'Data/repository_impl/animal_repository_impl.dart';
 import 'Data/repository_impl/product_repository_impl.dart';
 
 // Usecases
+import 'Domain/usecases/animal_usecases/get_animal_by_id_usecase.dart';
 import 'Domain/usecases/auth_usecase/signup_usecase.dart';
 import 'Domain/usecases/auth_usecase/login_usecase.dart';
 import 'Domain/usecases/auth_usecase/logout_usecase.dart';
@@ -26,6 +27,8 @@ import 'Domain/usecases/product_usecases/add_product_usecase.dart';
 import 'Domain/usecases/product_usecases/fetch_product_usecase.dart';
 
 // Presentation
+import 'Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
+import 'Presentation/Screens/Shopkeeper/HomeScreen.dart';
 import 'Presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'Presentation/bloc/animal_bloc/animal_bloc.dart';
 import 'Presentation/bloc/product_bloc/product_bloc.dart';
@@ -37,13 +40,18 @@ Future<void> main() async {
 
   final localDatasource = LocalDatasource();
   final isAuthenticated = await localDatasource.isUserAuthenticated;
+  final userRole = await localDatasource.getUserRole();
 
-  runApp(MyApp(isAuthenticated: isAuthenticated));
+  print("Role: $userRole");
+
+  runApp(MyApp(isAuthenticated: isAuthenticated, userRole: userRole));
 }
 
 class MyApp extends StatelessWidget {
   final bool isAuthenticated;
-  const MyApp({super.key, required this.isAuthenticated});
+  final String? userRole;
+
+  const MyApp({super.key, required this.isAuthenticated, this.userRole});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +63,7 @@ class MyApp extends StatelessWidget {
     // --- Repositories ---
     final authRepo = AuthRepositoryImpl(authRemoteDS, LocalDatasource());
     final animalRepo = AnimalRepositoryImpl(animalRemoteDS);
-    final  productRepo = ProductRepositoryImpl(productRemoteDS);
+    final productRepo = ProductRepositoryImpl(productRemoteDS);
 
     // --- Usecases ---
     final signupUseCase = SignupUseCase(authRepo);
@@ -66,9 +74,8 @@ class MyApp extends StatelessWidget {
     final getAnimalsUseCase = GetAnimalsUseCase(animalRepo);
     final addAnimalUseCase = AddAnimalUseCase(animalRepo);
     final deleteAnimalUseCase = DeleteAnimalUseCase(animalRepo);
-    //
-    // final addProductUseCase = AddProductUseCase(productRepo);
-    // final fetchProductsUseCase = FetchProductsUseCase(productRepo);
+    final getIdsUseCase = GetAnimalIdsByNameUseCase(animalRepo);
+
 
     return MultiBlocProvider(
       providers: [
@@ -85,28 +92,39 @@ class MyApp extends StatelessWidget {
             getAnimalsUseCase: getAnimalsUseCase,
             addAnimalUseCase: addAnimalUseCase,
             deleteAnimalUseCase: deleteAnimalUseCase,
+            getIdsUseCase: getIdsUseCase,
           ),
         ),
         BlocProvider<ProductBloc>(
           create: (context) => ProductBloc(
-            addProductUseCase: AddProductUseCase(ProductRepositoryImpl(ProductRemoteDataSource(http.Client()))),
-            fetchProductsUseCase: FetchProductsUseCase(ProductRepositoryImpl(ProductRemoteDataSource(http.Client()))),
+            addProductUseCase: AddProductUseCase(productRepo),
+            fetchProductsUseCase: FetchProductsUseCase(productRepo),
           ),
         ),
-        // BlocProvider<ProductBloc>(
-        //   create: (_) => ProductBloc(
-        //     addProductUseCase: addProductUseCase,
-        //     fetchProductsUseCase: fetchProductsUseCase,
-        //   ),
-        // ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         ),
-        home: isAuthenticated ? HomeScreen() : const Loginscreen(),
+        home: isAuthenticated
+            ? _getInitialScreen(userRole)
+            : const Loginscreen(),
       ),
     );
   }
+
+  Widget _getInitialScreen(String? role) {
+    switch (role) {
+      case 'Farmer':
+        return HomeScreen();
+      case 'Shopkeeper':
+        return ShopkeeperScreen();
+      case 'Veterinarian':
+        return VetHomeScreen();
+      default:
+        return const Loginscreen();
+    }
+  }
 }
+

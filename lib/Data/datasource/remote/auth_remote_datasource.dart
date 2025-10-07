@@ -13,7 +13,7 @@ class AuthRemoteDataSource {
   AuthRemoteDataSource(this.client);
 
   Future<UserModel> signup(
-      String email, String password, String confirmPassword, String role) async {
+      String email, String password, String confirmPassword, String role,double lat,double long) async {
     final response = await client.post(
       Uri.parse("$baseUrl/signup"),
       headers: {'Content-Type': 'application/json'},
@@ -22,6 +22,8 @@ class AuthRemoteDataSource {
         'password': password,
         'confirmPassword': confirmPassword,
         'role': role,
+        'latitude':lat,
+        'longitude':long
       }),
     );
     final data = jsonDecode(response.body);
@@ -44,7 +46,11 @@ class AuthRemoteDataSource {
       }),
     );
 
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
+
     final data = jsonDecode(response.body);
+    print("login data $data");
     if (response.statusCode == 200) {
       print(UserModel.fromJson(data));
       return UserModel.fromJson(data);
@@ -53,7 +59,7 @@ class AuthRemoteDataSource {
     }
   }
 
-  Future<UserModel> updateProfile({required String name, String? role, String? phoneNumber}) async {
+  Future<UserModel> updateProfile({required String? name, String? role, String? phoneNumber}) async {
     final localDatasource = LocalDatasource();
     final token = await localDatasource.getAccessToken();
 
@@ -75,6 +81,31 @@ class AuthRemoteDataSource {
       throw data['error'] ?? 'Failed to update profile';
     }
   }
+
+  Future<UserModel> fetchProfile() async {
+    final localDatasource = LocalDatasource();
+    final token = await localDatasource.getAccessToken();
+
+    if (token == null) throw "No token found. Please login again.";
+
+    final response = await client.get(
+      Uri.parse('$baseUrl/profile'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    print("Fetch profile response: ${response.body}");
+
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return UserModel.fromJson(data['user']);
+    } else {
+      throw data['error'] ?? 'Failed to fetch profile';
+    }
+  }
+
 
   Future<void> logout(String token) async {
 

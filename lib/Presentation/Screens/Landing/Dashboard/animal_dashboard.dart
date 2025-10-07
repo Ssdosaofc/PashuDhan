@@ -112,12 +112,12 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
                         qtyController.text.isNotEmpty &&
                         selectedUnit != null) {
                       final quantityWithUnit =
-                          "${qtyController.text} $selectedUnit"; // ✅ merge quantity + unit
+                          "${qtyController.text} $selectedUnit";
                       context.read<ProductBloc>().add(AddProduct(
                         id: widget.animalId.hashCode,
                         livestockId: widget.animalId,
                         productName: selectedProduct!,
-                        quantity: quantityWithUnit, // ✅ send full string
+                        quantity: quantityWithUnit,
                       ));
                       Navigator.pop(ctx);
                       CustomSnackbar.showSnackBar(

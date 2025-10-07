@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pashu_dhan/Presentation/Screens/Shopkeeper/ProfileScreen.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import '../../../Core/Constants/color_constants.dart';
 import '../../../Data/models/farmer_model.dart';
 import '../../../Data/models/product_model.dart';
 import 'package:geolocator/geolocator.dart';
+
+import '../Landing/Profile/profile.dart';
 
 class ShopkeeperScreen extends StatefulWidget {
   const ShopkeeperScreen({Key? key}) : super(key: key);
@@ -29,7 +32,14 @@ class _ShopkeeperScreenState extends State<ShopkeeperScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Screen', style: TextStyle(color: Colors.white)),
+        title: Text(
+          _currentIndex == 0
+              ? 'Map'
+              : _currentIndex == 1
+              ? 'Orders'
+              : 'Profile',
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: ColorConstants.c1C5D43,
       ),
       body: Stack(
@@ -38,7 +48,7 @@ class _ShopkeeperScreenState extends State<ShopkeeperScreen> {
               ? _buildMapScreen()
               : _currentIndex == 1
               ? _buildOrdersScreen()
-              : _buildProfileScreen(),
+              : ProfileShopkeeperPage(),
 
 
           if (_currentIndex == 0)

@@ -32,4 +32,11 @@ class DeleteAnimalEvent extends AnimalEvent {
   DeleteAnimalEvent({required this.animalId});
 }
 
+class FetchAnimalIdsByNameEvent extends AnimalEvent {
+  final String name;
+  FetchAnimalIdsByNameEvent(this.name);
+  @override
+  List<Object?> get props => [name];
+}
+
 

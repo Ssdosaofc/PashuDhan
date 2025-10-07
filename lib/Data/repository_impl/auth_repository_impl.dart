@@ -12,9 +12,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<UserEntity> signup(
-      String email, String password, String confirmPassword, String role) async {
+      String email, String password, String confirmPassword, String role,double lat,double long) async {
     final userModel =
-    await remoteDataSource.signup(email, password, confirmPassword, role);
+    await remoteDataSource.signup(email, password, confirmPassword, role,lat,long);
     return userModel;
   }
 
@@ -29,7 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UserEntity> updateProfile({required String name, String? role, String? phoneNumber}) async {
+  Future<UserEntity> updateProfile({required String? name, String? role, String? phoneNumber}) async {
     final response = await remoteDataSource.updateProfile(name: name, role: role, phoneNumber: phoneNumber);
 
     return UserEntity(

@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/VetHomeScreen.dart';
-
+import 'package:pashu_dhan/Presentation/Screens/Shopkeeper/HomeScreen.dart';
 import '../../../Core/Constants/assets_constants.dart';
 import '../../../Core/Constants/color_constants.dart';
 import '../../../Data/datasource/local/local_datasource.dart';
@@ -44,6 +43,37 @@ class _LoginscreenState extends State<Loginscreen> {
     }
   }
 
+  void _navigateByRole(String role) {
+    switch (role) {
+      case 'Farmer':
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen()),
+              (route) => false,
+        );
+      case 'Shopkeeper':
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => ShopkeeperScreen()),
+              (route) => false,
+        );
+        break;
+      case 'Veterinarian':
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => VetHomeScreen()),
+              (route) => false,
+        );
+        break;
+      default:
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen()),
+              (route) => false,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,23 +93,25 @@ class _LoginscreenState extends State<Loginscreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     child: BlocConsumer<AuthBloc, AuthState>(
-                      listener: (context, state) {
+                      listener: (context, state) async {
                         if (state is AuthSuccess) {
                           final token = state.token;
-                          localDatasource.writeAccessToken(token!);
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (_) => HomeScreen()),
-                                (route) => false,
-                          );
-                          CustomSnackbar.showSnackBar(text: 'Login Successful', context: context);
+                          final role = state.role;
+                          if (token != null) {
+                            await localDatasource.writeAccessToken(token);
+                          }
+                          CustomSnackbar.showSnackBar(
+                              text: 'Login Successful', context: context);
+                          _navigateByRole(role!);
                         } else if (state is AuthFailure) {
-                          CustomSnackbar.showSnackBar(text: state.error, context: context);
+                          CustomSnackbar.showSnackBar(
+                              text: state.error, context: context);
                         }
                       },
                       builder: (context, state) {
                         if (state is AuthLoading) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
 
                         return Column(
@@ -120,7 +152,8 @@ class _LoginscreenState extends State<Loginscreen> {
                               width: double.maxFinite,
                               height: 50,
                               decoration: BoxDecoration(
-                                border: Border.all(color: ColorConstants.c999999),
+                                border: Border.all(
+                                    color: ColorConstants.c999999),
                                 borderRadius: BorderRadius.circular(30),
                               ),
                               child: Row(
@@ -135,7 +168,8 @@ class _LoginscreenState extends State<Loginscreen> {
                                       value: range,
                                       isExpanded: true,
                                       menuMaxHeight: 200,
-                                      style: const TextStyle(color: Colors.black),
+                                      style: const TextStyle(
+                                          color: Colors.black),
                                       dropdownColor: Colors.white,
                                       icon: const Icon(
                                         Icons.arrow_drop_down_outlined,
@@ -146,22 +180,22 @@ class _LoginscreenState extends State<Loginscreen> {
                                             value: 1,
                                             child: Text(
                                               'Farmer',
-                                              style:
-                                              TextStyle(color: Colors.black),
+                                              style: TextStyle(
+                                                  color: Colors.black),
                                             )),
                                         DropdownMenuItem(
                                             value: 2,
                                             child: Text(
                                               'Shopkeeper',
-                                              style:
-                                              TextStyle(color: Colors.black),
+                                              style: TextStyle(
+                                                  color: Colors.black),
                                             )),
                                         DropdownMenuItem(
                                             value: 3,
                                             child: Text(
                                               'Veterinarian',
-                                              style:
-                                              TextStyle(color: Colors.black),
+                                              style: TextStyle(
+                                                  color: Colors.black),
                                             )),
                                       ],
                                       onChanged: (v) {
@@ -177,24 +211,26 @@ class _LoginscreenState extends State<Loginscreen> {
                             ),
                             const SizedBox(height: 25),
                             PrimaryButton(
-                                onPressed: (){
-                                  switch(range){
-                                    case 1:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        HomeScreen()), (Route<dynamic> route) => false);
-                                    case 2:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        HomeScreen()), (Route<dynamic> route) => false);
-                                    case 3:Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) =>
-                                        VetHomeScreen()), (Route<dynamic> route) => false);
-                                  }
-                                },
-                                text: "Login"
+                              onPressed: () {
+                                final roleStr = getRoleFromRange(range);
+
+                                context.read<AuthBloc>().add(
+                                  LoginEvent(
+                                    emailController.text.trim(),
+                                    passwordController.text,
+                                    roleStr,
+                                  ),
+                                );
+                              },
+                              text: "Login",
                             ),
                             const SizedBox(height: 15),
                             TextButton(
                               onPressed: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (_) => const Signupscreen())),
+                                      builder: (_) =>
+                                      const Signupscreen())),
                               child: Text(
                                 'Don\'t have an account? Sign up',
                                 style: TextStyle(

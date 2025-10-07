@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,16 +18,12 @@ class AiAssistantScreen extends StatefulWidget {
 }
 
 class _AiAssistantScreenState extends State<AiAssistantScreen> {
-  final List<Map<String, dynamic>> messages = [
-    {
-      'sender': 'Vet',
-      'text': 'Hello, how can I help you today?',
-      'time': '09:15 AM',
-    }
-  ];
+  late List<Map<String, dynamic>> messages;
 
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  final Dio _dio = Dio();
 
   void _sendMessage() {
     if (_controller.text.trim().isEmpty) return;
@@ -45,6 +43,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   }
 
   void _aiResponse(String userMessage) async {
+    await Future.delayed(const Duration(seconds: 2));
     setState(() {
       messages.add({
         'sender': 'Vet',
@@ -55,6 +54,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
     });
 
     await Future.delayed(const Duration(seconds: 2));
+
+    final response = await _dio.post(
+      'http://127.0.0.1:5001/generate',
+      data: jsonEncode({'prompt': userMessage}),
+      options: Options(
+        // contentType: Headers.jsonContentType,
+        responseType: ResponseType.json,
+      ),
+    );
+
+    print(response.data);
+    final pres = response.data["result"];
     setState(() => messages.removeWhere((msg) => msg['typing'] == true));
 
     final reply =
@@ -71,10 +82,12 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
 
     await Future.delayed(const Duration(seconds: 2));
     final vetPrescription = {
-      "animal": "Cow",
-      "disease": "Foot and Mouth Disease",
-      "prescription":
-      "Vaccinate with FMD vaccine (0.5 ml, subcutaneous), provide antiseptic mouthwash twice daily, and ensure hydration.",
+      "animal": pres["animal"],
+      "disease": pres["disease"],
+      "prescription": pres["prescription"],
+      "dosage": pres["dosage"],
+      "when": pres["when"],
+      "duration": pres["duration"],
     };
 
     setState(() {
@@ -105,6 +118,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
         curve: Curves.easeOut,
       );
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    messages = [
+      {
+        'sender': 'Vet',
+        'text': 'Hello, how can I help you today?',
+        'time': _formatCurrentTime(),
+      }
+    ];
   }
 
   @override
@@ -231,24 +256,32 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.green.shade200),
+              border: Border.all(color: Colors.grey.shade300),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Prescription Summary",
+                  "Prescription",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Colors.green,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Table(
                   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  border: TableBorder.all(color: Colors.grey.shade300),
                   columnWidths: const {
                     0: IntrinsicColumnWidth(),
                     1: FlexColumnWidth(),
@@ -266,6 +299,18 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                       _tableCell("Prescription"),
                       _tableValue(data["prescription"]),
                     ]),
+                    TableRow(children: [
+                      _tableCell("Dosage"),
+                      _tableValue('${data["dosage"]} times a day'),
+                    ]),
+                    TableRow(children: [
+                      _tableCell("When"),
+                      _tableValue(data["when"]),
+                    ]),
+                    TableRow(children: [
+                      _tableCell("Duration"),
+                      _tableValue('${data["duration"]} days'),
+                    ]),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -273,14 +318,14 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     onPressed: () {
-                      print(data["animal"]);
-                      context
-                          .read<AnimalBloc>()
-                          .add(FetchAnimalIdsByNameEvent(data["animal"]));
-                      _showAnimalBottomSheet(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Prescription added to treatment list"),
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: ColorConstants.c1C5D43,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -295,11 +340,14 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            time,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey.shade600,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              time,
+              style: TextStyle(
+                fontSize: 11,
+                color: Colors.grey.shade600,
+              ),
             ),
           ),
         ],
@@ -382,7 +430,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
 
   Widget _tableValue(String text) => Padding(
     padding: const EdgeInsets.all(8.0),
-    child: Text(text, style: const TextStyle(color: Colors.black87)),
+    child: Text(text),
   );
 
   Widget _buildMessageInput() {

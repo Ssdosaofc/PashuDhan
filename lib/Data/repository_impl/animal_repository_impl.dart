@@ -43,4 +43,12 @@ class AnimalRepositoryImpl implements AnimalRepository {
     await remoteDS.deleteAnimal(animalId);
   }
 
+
+    @override
+    Future<List<String>> getAnimalIdsByName(String name) {
+      return remoteDS.fetchAnimalIdsByName(name);
+    }
+
 }
+
+

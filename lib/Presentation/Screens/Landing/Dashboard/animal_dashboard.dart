@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pashu_dhan/Presentation/Common/custom_snackbar.dart';
 import '../../../../Core/Constants/color_constants.dart';
 import '../../../../Domain/entities/animal_entity.dart';
 import '../../../../Domain/entities/treatment_entity.dart';
+import '../../../Common/custom_snackbar.dart';
 import '../../../bloc/product_bloc/product_bloc.dart';
 import '../../../bloc/product_bloc/product_event.dart';
 import '../../../bloc/product_bloc/product_state.dart';
+import '../../../bloc/treatment_bloc/treatment_bloc.dart';
+import '../../../bloc/treatment_bloc/treatment_event.dart';
+import '../../../bloc/treatment_bloc/treatment_state.dart';
+import '../Veterinarian/ChatDetailsPage.dart';
 
 class AnimalDetailScreen extends StatefulWidget {
   final String animalId;
@@ -25,11 +29,6 @@ class AnimalDetailScreen extends StatefulWidget {
 }
 
 class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
-  final List<Treatment> treatmentHistory = [
-    Treatment(date: "Sep 25, 2025", drugName: "Amoxicillin", dosage: "500 mg", reason: "Respiratory Infection"),
-    Treatment(date: "Aug 12, 2025", drugName: "Ivermectin", dosage: "20 ml", reason: "Deworming (Prophylactic)"),
-  ];
-
   final Map<String, List<String>> animalProducts = {
     "Cow": ["Milk", "Leather"],
     "Buffalo": ["Milk", "Leather"],
@@ -42,6 +41,28 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
   };
 
   final List<String> units = ["ml", "mg", "kg", "litre", "pcs"];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch Products
+    context.read<ProductBloc>().add(FetchProducts(widget.animalId));
+    // Fetch Treatments
+    context.read<TreatmentBloc>().add(FetchTreatmentsByAnimal(widget.animal.name));
+  }
+
+  Color _getStatusColor(String status) {
+    switch(status){
+      case 'Completed':
+        return Colors.green;
+      case 'Pending':
+        return Colors.yellow;
+      case 'Follow-up':
+        return Colors.orange;
+      default:
+        return Colors.orange;
+    }
+  }
 
   void _showAddProductDialog() {
     String? selectedProduct;
@@ -100,8 +121,9 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
               ),
               actions: [
                 TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text("Cancel", style: TextStyle(color: Colors.black))),
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text("Cancel", style: TextStyle(color: Colors.black)),
+                ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
@@ -111,17 +133,16 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
                     if (selectedProduct != null &&
                         qtyController.text.isNotEmpty &&
                         selectedUnit != null) {
-                      final quantityWithUnit =
-                          "${qtyController.text} $selectedUnit"; // ✅ merge quantity + unit
+                      final quantityWithUnit = "${qtyController.text} $selectedUnit";
                       context.read<ProductBloc>().add(AddProduct(
                         id: widget.animalId.hashCode,
                         livestockId: widget.animalId,
                         productName: selectedProduct!,
-                        quantity: quantityWithUnit, // ✅ send full string
+                        quantity: quantityWithUnit,
                       ));
                       Navigator.pop(ctx);
                       CustomSnackbar.showSnackBar(
-                        text: "${selectedProduct!} added successfully",
+                        text: "$selectedProduct added successfully",
                         context: context,
                       );
                     } else {
@@ -137,12 +158,6 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
         );
       },
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<ProductBloc>().add(FetchProducts(widget.animalId));
   }
 
   @override
@@ -169,7 +184,7 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
           const SizedBox(height: 16),
           _buildWithdrawalStatusCard(),
           const SizedBox(height: 20),
-          _buildTreatmentHistorySection(),
+          _buildTreatmentCard(),
           const SizedBox(height: 20),
           _buildProductSection(),
         ],
@@ -196,18 +211,15 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
                 children: [
                   _buildInfoRow(Icons.bookmark, widget.animal.name, Colors.black, FontWeight.bold),
                   Text(widget.animalId,
-                      style:
-                      const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Container(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                         color: Colors.green.shade100,
                         borderRadius: BorderRadius.circular(8)),
                     child: const Text("Healthy",
-                        style: TextStyle(
-                            color: Colors.green, fontWeight: FontWeight.bold)),
+                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -259,56 +271,206 @@ class _AnimalDetailScreenState extends State<AnimalDetailScreen> {
     );
   }
 
-  Widget _buildTreatmentHistorySection() {
+
+  Widget _buildTreatmentCard() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text("Treatment History",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        if (treatmentHistory.isEmpty)
-          const Center(
-              child: Text("No treatment history found.",
-                  style: TextStyle(color: Colors.grey, fontSize: 16)))
-        else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: treatmentHistory.length,
-            itemBuilder: (context, index) {
-              final treatment = treatmentHistory[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
+        const SizedBox(height: 16),
+        BlocBuilder<TreatmentBloc, TreatmentState>(
+          builder: (context, state) {
+            if (state is TreatmentLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is TreatmentError) {
+              return Center(child: Text(state.message));
+            } else if (state is TreatmentLoaded) {
+              final treatments = state.treatments;
+              if (treatments.isEmpty) {
+                return const Center(
+                    child: Text("No treatment history found.",
+                        style: TextStyle(color: Colors.grey, fontSize: 16)));
+              }
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: treatments.length,
+                itemBuilder: (context, index) {
+                  final treatment = treatments[index];
+                  // Pass the index to know if it's the last item (for the timeline)
+                  return _buildTreatmentTimelineCard(treatment, index == treatments.length - 1);
+                },
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ],
+    );
+  }
+
+  //
+// Add this new method to your _AnimalDetailScreenState class.
+// It replaces your old _buildTreatmentCard.
+//
+  Widget _buildTreatmentTimelineCard(TreatmentEntity treatment, bool isLastItem) {
+    final status =  'Follow-up';
+    final statusColor = _getStatusColor(status);
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            // width: 40,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                // Container(
+                //   width: 18,
+                //   height: 18,
+                //   decoration: BoxDecoration(
+                //     color: statusColor.withOpacity(0.3),
+                //     shape: BoxShape.circle,
+                //     border: Border.all(color: statusColor, width: 2),
+                //   ),
+                // ),
+                if (!isLastItem)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      color: Colors.grey.shade300,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(treatment.date,
-                          style:
-                          const TextStyle(color: Colors.grey, fontSize: 13)),
-                      const SizedBox(height: 8),
-                      Text(treatment.drugName,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 4),
-                      Text("Reason: ${treatment.reason}"),
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Text("Dosage: ${treatment.dosage}",
-                            style:
-                            const TextStyle(color: Colors.black54)),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              treatment.prescription,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF333333),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "${treatment.disease} • ${treatment.when}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          status,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              );
-            },
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.0),
+                    child: Divider(),
+                  ),
+                  _buildDetailRow(
+                      Icons.medication_liquid_outlined,
+                      "Dosage",
+                      treatment.dosage
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailRow(
+                      Icons.timer_outlined,
+                      "Duration",
+                      treatment.duration
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+//
+// Add this helper method for creating detail rows.
+//
+  Widget _buildDetailRow(IconData icon, String label, String value, {bool isExpanded = false}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: Colors.grey.shade500),
+        const SizedBox(width: 12),
+        Text(
+          "$label: ",
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey.shade700,
+          ),
+        ),
+        if(isExpanded)
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
+          )
+        else
+          Text(
+            value,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
           ),
       ],
     );
   }
+
+
+
+
+
+
 
   Widget _buildProductSection() {
     return Column(

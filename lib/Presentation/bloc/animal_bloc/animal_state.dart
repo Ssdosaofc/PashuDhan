@@ -40,3 +40,23 @@ class AnimalFailure extends AnimalState {
   @override
   List<Object?> get props => [error];
 }
+
+class AnimalIdsInitial extends AnimalState {}
+
+class AnimalIdsLoading extends AnimalState {}
+
+class AnimalIdsLoaded extends AnimalState {
+  final List<String> ids;
+  AnimalIdsLoaded(this.ids);
+
+  @override
+  List<Object?> get props => [ids];
+}
+
+class AnimalIdsError extends AnimalState {
+  final String message;
+  AnimalIdsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

@@ -9,7 +9,7 @@ class UpdateProfileUseCase {
 
   UpdateProfileUseCase(this.repository);
 
-  Future<UserEntity> updateProfile({required String name, String? role, String? phoneNumber}) async {
+  Future<UserEntity> updateProfile({required String? name, String? role, String? phoneNumber}) async {
     final updatedUser = await repository.updateProfile(name: name, role: role, phoneNumber: phoneNumber);
     return updatedUser;
   }

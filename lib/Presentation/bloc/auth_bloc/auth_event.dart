@@ -7,10 +7,12 @@ abstract class AuthEvent extends Equatable {
 
 class SignupEvent extends AuthEvent {
   final String email, password, confirmPassword, role;
-  SignupEvent(this.email, this.password, this.confirmPassword, this.role);
+  final double lat;
+  final double long;
+  SignupEvent(this.email, this.password, this.confirmPassword, this.role,this.lat,this.long);
 
   @override
-  List<Object?> get props => [email, password, confirmPassword, role];
+  List<Object?> get props => [email, password, confirmPassword, role,lat,long];
 }
 
 class LoginEvent extends AuthEvent {
@@ -30,9 +32,18 @@ class LogoutEvent extends AuthEvent {
   @override
   List<Object?> get props => [token];
 }
+class ProfileFetched extends AuthEvent {
+  final String role;
+  final String name;
+  final String phoneNumber;
+
+  ProfileFetched({required this.role, required this.name, required this.phoneNumber});
+}
+
+
 
 class UpdateProfileEvent extends AuthEvent {
-  final String name;
+  final String? name;
   final String? role;
   final String? phoneNumber;
 

@@ -16,13 +16,18 @@ class LocalDatasource {
   Future<String?> getAccessToken() async =>
       await _secureStorage.read(key: StringConstants.token);
 
+  Future<String?> getUserRole() async {
+    return await _secureStorage.read(key: 'userRole');
+  }
+
+
   Future<void> writeAccessToken(String token) async =>
       await _secureStorage.write(key: StringConstants.token, value: token);
 
   Future<void> clearAccessToken() async =>
       await _secureStorage.delete(key: StringConstants.token);
 
-  Future<void> write({required String key, required String value}) async {
+  Future<void> write({required String key, required String? value}) async {
     await _secureStorage.write(key: key, value: value);
   }
 

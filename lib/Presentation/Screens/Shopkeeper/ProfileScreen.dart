@@ -4,24 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pashu_dhan/Core/Constants/color_constants.dart';
 import '../../../../Data/datasource/local/local_datasource.dart';
-import '../../../bloc/animal_bloc/animal_bloc.dart';
-import '../../../bloc/animal_bloc/animal_state.dart';
-import '../../../bloc/auth_bloc/auth_bloc.dart';
-import '../../../bloc/auth_bloc/auth_event.dart';
-import '../../../bloc/auth_bloc/auth_state.dart';
-import '../../Auth/LoginScreen.dart';
+import '../../bloc/animal_bloc/animal_bloc.dart';
+import '../../bloc/animal_bloc/animal_state.dart';
+import '../../bloc/auth_bloc/auth_bloc.dart';
+import '../../bloc/auth_bloc/auth_event.dart';
+import '../../bloc/auth_bloc/auth_state.dart';
+import '../Auth/LoginScreen.dart';
 import 'package:http/http.dart' as http;
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ProfileShopkeeperPage extends StatefulWidget {
+  const ProfileShopkeeperPage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<ProfileShopkeeperPage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfileShopkeeperPage> {
   bool notificationsEnabled = false;
   bool darkModeEnabled = false;
+  final LocalDatasource localDatasource = LocalDatasource();
+  String userRole = "Unknown";
+
+
+  @override
 
   void _performLogout(BuildContext context) async {
     final localDatasource = LocalDatasource();
@@ -34,11 +39,14 @@ class _ProfilePageState extends State<ProfilePage> {
           (route) => false,
     );
   }
+
   @override
   void initState() {
     super.initState();
+    // _loadUserRole();
     fetchProfile();
   }
+
 
 
   Future<void> fetchProfile() async {
@@ -83,8 +91,12 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-
-
+  // Future<void> _loadUserRole() async {
+  //   final role = await localDatasource.getUserRole();
+  //   setState(() {
+  //     userRole = role ?? "Unknown";
+  //   });
+  // }
 
   void _editProfile(String currentName, String currentRole, String currentPhone) {
     TextEditingController nameController = TextEditingController(text: currentName);
@@ -144,14 +156,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 onPressed: () {
                   final newName = nameController.text.trim();
-                  final newRole = roleController.text.trim();
                   final newPhone = phoneController.text.trim();
 
                   // if (newName.isEmpty || newPhone.isEmpty) return;
 
                   context.read<AuthBloc>().add(UpdateProfileEvent(
                     name: newName,
-                    role: newRole,
                     phoneNumber: newPhone,
                   ));
 
@@ -172,18 +182,20 @@ class _ProfilePageState extends State<ProfilePage> {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
         String userName = "Guest";
-        String userRole = "Unknown";
         String userPhoneNumber = "";
+
 
         if (authState is UpdateProfileSuccess) {
           userName = authState.user.name ?? "Guest";
           userRole = authState.user.role;
           userPhoneNumber = authState.user.phoneNumber ?? "";
+
         }
         if(authState is AuthSuccess){
           userName = authState.name ?? "Guest";
+          userRole = authState.role!;
           userPhoneNumber = authState.phoneNumber ?? "";
-          userRole = authState.role ?? "Unknown";
+          context.read<AuthBloc>().add(UpdateProfileEvent(name: authState.name));
         }
 
         return Scaffold(
@@ -191,25 +203,9 @@ class _ProfilePageState extends State<ProfilePage> {
           body: SafeArea(
             child: Column(
               children: [
-                AppBar(
-                  backgroundColor: ColorConstants.cF2F2F2,
-                  elevation: 0,
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  title: const Text(
-                    "Profile",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 10),
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
@@ -274,40 +270,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Stats Cards
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: BlocBuilder<AnimalBloc, AnimalState>(
-                    builder: (context, state) {
-                      int? totalCount = 0;
-                      int? monthlyCount = 0;
-
-                      if (state is AnimalSuccess) {
-                        totalCount = state.totalCount;
-                        monthlyCount = state.monthlyCount;
-                      }
-
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _statCard("Total Livestock", totalCount.toString(), Icons.pets, Colors.teal),
-                          _statCard("Added This Month", monthlyCount.toString(), Icons.add_circle, Colors.orange),
-                          _statCard("Feed Remaining", "7 Days", Icons.inventory, Colors.green),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // Quick Actions
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _quickAction(Icons.edit, "Edit", () => _editProfile(userName, userRole,userPhoneNumber)),
-                      _quickAction(Icons.add, "Add Animal", () {}),
-                      _quickAction(Icons.bar_chart, "Reports", () {}),
                       _quickAction(Icons.settings, "Settings", () {}),
                     ],
                   ),

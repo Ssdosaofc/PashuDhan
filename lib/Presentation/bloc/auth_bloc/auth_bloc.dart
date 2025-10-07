@@ -25,6 +25,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginEvent>(_onLogin);
     on<LogoutEvent>(_onLogout);
     on<UpdateProfileEvent>(_onUpdateProfile);
+    on<ProfileFetched>((event, emit) {
+      emit(AuthSuccess(
+        role: event.role,
+        name: event.name,
+        phoneNumber: event.phoneNumber,
+      ));
+    });
+
   }
 
   Future<void> _onSignup(SignupEvent event, Emitter<AuthState> emit) async {
@@ -35,6 +43,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         event.password,
         event.confirmPassword,
         event.role,
+        event.lat,
+        event.long
       );
       emit(AuthSuccess(role: user.role, message: "User registered successfully"));
     } catch (e) {
@@ -46,7 +56,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       final user = await loginUseCase(event.email, event.password,event.role);
-
+      await localDatasource.write(key: 'token', value: user.token);
+      await localDatasource.write(key: 'userRole', value: user.role);
       emit(AuthSuccess(token: user.token, role: user.role, message: "Login successful", name: user.name, phoneNumber: user.phoneNumber));
     } catch (e) {
       emit(AuthFailure(e.toString()));

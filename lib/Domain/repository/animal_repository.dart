@@ -4,4 +4,7 @@ abstract class AnimalRepository {
   Future<AnimalEntity> addAnimal(String name, String type);
   Future<Map<String, dynamic>> getAnimals();
   Future<void> deleteAnimal(String animalId);
+  
+  Future<List<String>> getAnimalIdsByName(String name);
+
 }

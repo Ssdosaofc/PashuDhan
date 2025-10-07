@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import '../../Domain/entities/user_entity.dart';
 
 class UserModel extends UserEntity {
@@ -7,7 +9,9 @@ class UserModel extends UserEntity {
     this.name,
     String? token,
     String? phoneNumber,
-  }) : super(email: email, role: role, token: token, name: name, phoneNumber: phoneNumber,);
+    double? lat,
+    double? long
+  }) : super(email: email, role: role, token: token, name: name, phoneNumber: phoneNumber,lat: lat,long: long);
 
   final String? name;
 
@@ -18,6 +22,8 @@ class UserModel extends UserEntity {
       token: json['token'],
       name: json['name'],
       phoneNumber: json['phoneNumber'],
+      lat: json['lat'],
+      long: json['long'],
     );
   }
 
@@ -28,6 +34,8 @@ class UserModel extends UserEntity {
       'token': token,
       'name': name,
       'phoneNumber': phoneNumber,
+      'lat': lat,
+      'long': long,
     };
   }
 }

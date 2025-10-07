@@ -79,7 +79,11 @@ class _LivestockState extends State<Livestock> {
         ),
         title: const Text(
           "Livestock",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
         ),
       ),
       body: Column(

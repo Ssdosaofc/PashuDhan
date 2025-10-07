@@ -14,7 +14,7 @@ class _VetHomeScreenState extends State<VetHomeScreen> {
   final List<Widget> _screens = [
     ChatsPage(),
     HistoryPage(),
-    Center(child: Text('Settings Page')), // Replace with actual Settings widget
+    Center(child: Text('Settings Page')),
   ];
 
   @override

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pashu_dhan/Presentation/Screens/Landing/Veterinarian/ChatDetailsPage.dart';
 
+import '../Profile/vet_profile.dart';
+
 class ChatsPage extends StatelessWidget {
   // PashuDhan theme colors
   static const Color primaryGreen = Color(0xFF2D5F4F);
@@ -50,6 +52,22 @@ class ChatsPage extends StatelessWidget {
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {},
           ),
+          SizedBox(width: 10),
+          GestureDetector(
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => VetProfilePage()),
+              );
+            },
+            child: const CircleAvatar(
+              backgroundImage: NetworkImage(
+                "https://i.pravatar.cc/150?img=5",
+              ),
+              radius: 18,
+            ),
+          ),
+          SizedBox(width: 16),
         ],
       ),
       body:
